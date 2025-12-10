@@ -1,0 +1,16 @@
+[
+    {
+        "id": "m1",
+        "courseId": "c101",
+        "title": "شهر أغسطس",
+        "description": "مقدمة في النحو والبلاغة",
+        "order": 1
+    },
+    {
+        "id": "m2",
+        "courseId": "c101",
+        "title": "شهر سبتمبر",
+        "description": "الأدب الجاهلي",
+        "order": 2
+    }
+]

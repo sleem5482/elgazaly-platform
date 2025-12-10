@@ -1,0 +1,25 @@
+[
+    {
+        "id": "u001",
+        "name": "أحمد علي",
+        "phone": "01000000001",
+        "password": "password123",
+        "role": "student",
+        "grade": 1,
+        "subscribedCourses": [
+            "c101"
+        ],
+        "isSubscribed": true,
+        "subscriptionCode": "ABC123"
+    },
+    {
+        "id": "admin01",
+        "name": "Admin",
+        "phone": "01000000000",
+        "password": "admin",
+        "role": "admin",
+        "permissions": [
+            "all"
+        ]
+    }
+]

@@ -1,0 +1,20 @@
+[
+    {
+        "id": "l1",
+        "weekId": "w1",
+        "title": "المبتدأ والخبر",
+        "type": "video",
+        "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "duration": "45:00",
+        "order": 1
+    },
+    {
+        "id": "l2",
+        "weekId": "w1",
+        "title": "اختبار على المبتدأ والخبر",
+        "type": "exam",
+        "examId": "e1",
+        "duration": "15:00",
+        "order": 2
+    }
+]
