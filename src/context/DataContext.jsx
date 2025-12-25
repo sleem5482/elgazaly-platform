@@ -6,6 +6,8 @@ import monthsData from '../data/months.json';
 import weeksData from '../data/weeks.json';
 import lessonsData from '../data/lessons.json';
 import examsData from '../data/exams.json';
+import freeVideosData from '../data/freeVideos.json';
+import freeExamsData from '../data/freeExams.json';
 
 const DataContext = createContext();
 
@@ -50,6 +52,16 @@ export function DataProvider({ children }) {
         return stored ? JSON.parse(stored) : [];
     });
 
+    const [freeVideos, setFreeVideos] = useState(() => {
+        const stored = localStorage.getItem('freeVideos');
+        return stored ? JSON.parse(stored) : freeVideosData;
+    });
+
+    const [freeExams, setFreeExams] = useState(() => {
+        const stored = localStorage.getItem('freeExams');
+        return stored ? JSON.parse(stored) : freeExamsData;
+    });
+
     // Sync to localStorage
     useEffect(() => localStorage.setItem('users', JSON.stringify(users)), [users]);
     useEffect(() => localStorage.setItem('grades', JSON.stringify(grades)), [grades]);
@@ -59,22 +71,28 @@ export function DataProvider({ children }) {
     useEffect(() => localStorage.setItem('lessons', JSON.stringify(lessons)), [lessons]);
     useEffect(() => localStorage.setItem('exams', JSON.stringify(exams)), [exams]);
     useEffect(() => localStorage.setItem('subscriptions', JSON.stringify(subscriptions)), [subscriptions]);
+    useEffect(() => localStorage.setItem('freeVideos', JSON.stringify(freeVideos)), [freeVideos]);
+    useEffect(() => localStorage.setItem('freeExams', JSON.stringify(freeExams)), [freeExams]);
 
-    const subscribe = (userId, itemId, type) => {
-        console.log('Subscribing:', { userId, itemId, type });
+    const subscribe = (userId, itemId, type, paymentData = {}) => {
+        console.log('Subscribing:', { userId, itemId, type, paymentData });
         const newSubscription = {
             id: Date.now().toString(),
             userId,
             itemId,
             type,
             date: new Date().toISOString(),
-            status: 'active'
+            status: 'active',
+            ...paymentData
         };
         setSubscriptions(prev => {
             const updated = [...prev, newSubscription];
             console.log('Updated Subscriptions:', updated);
             return updated;
         });
+
+        // Update user with latest payment info for Admin View
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...paymentData } : u));
     };
 
     const checkSubscription = (userId, itemId, type) => {
@@ -82,13 +100,36 @@ export function DataProvider({ children }) {
         const user = users.find(u => u.id === userId);
         if (user?.role === 'admin') return true;
 
+        // For course-based payment model
+        if (type === 'week' || type === 'month') {
+            // Find the course this week/month belongs to
+            let courseId;
+            if (type === 'week') {
+                const week = weeks.find(w => w.id === itemId);
+                const month = months.find(m => m.id === week?.monthId);
+                courseId = month?.courseId;
+            } else {
+                const month = months.find(m => m.id === itemId);
+                courseId = month?.courseId;
+            }
+
+            // Check if user has subscribed to the course
+            const isSubscribed = subscriptions.some(sub =>
+                sub.userId === userId &&
+                sub.itemId === courseId &&
+                sub.type === 'course' &&
+                sub.status === 'active'
+            );
+            return isSubscribed;
+        }
+
+        // For direct course subscription check
         const isSubscribed = subscriptions.some(sub =>
             sub.userId === userId &&
             sub.itemId === itemId &&
-            sub.type === type &&
+            sub.type === 'course' &&
             sub.status === 'active'
         );
-        console.log('Checking Subscription:', { userId, itemId, type, isSubscribed, subscriptions });
         return isSubscribed;
     };
 
@@ -100,7 +141,9 @@ export function DataProvider({ children }) {
         weeks, setWeeks,
         lessons, setLessons,
         exams, setExams,
-        subscriptions, subscribe, checkSubscription
+        subscriptions, subscribe, checkSubscription,
+        freeVideos, setFreeVideos,
+        freeExams, setFreeExams
     };
 
     return (

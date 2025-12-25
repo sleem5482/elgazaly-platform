@@ -1,7 +1,9 @@
 [
     {
         "id": "e1",
+        "weekId": "w1",
         "title": "اختبار المبتدأ والخبر",
+        "duration": 30,
         "questions": [
             {
                 "id": "q1",

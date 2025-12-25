@@ -10,7 +10,9 @@ export default function AdminUsers() {
     const { users, setUsers, grades } = useData();
     const [searchTerm, setSearchTerm] = useState('');
     const [isAdding, setIsAdding] = useState(false);
-    const [newUser, setNewUser] = useState({ name: '', phone: '', password: '', grade: 1 });
+    const [isEditing, setIsEditing] = useState(false);
+    const [viewingUser, setViewingUser] = useState(null);
+    const [newUser, setNewUser] = useState({ name: '', phone: '', password: '', grade: 1, division: 'scientific' });
 
     const filteredUsers = users.filter(u =>
         u.role === 'student' && (u.name.includes(searchTerm) || u.phone.includes(searchTerm))
@@ -18,16 +20,28 @@ export default function AdminUsers() {
 
     const handleAddUser = () => {
         if (!newUser.name || !newUser.phone) return;
-        const user = {
-            id: `u${Date.now()}`,
-            ...newUser,
-            role: 'student',
-            isSubscribed: false,
-            subscribedCourses: []
-        };
-        setUsers([...users, user]);
+
+        if (isEditing) {
+            setUsers(users.map(u => u.id === newUser.id ? { ...u, ...newUser } : u));
+            setIsEditing(false);
+        } else {
+            const user = {
+                id: `u${Date.now()}`,
+                ...newUser,
+                role: 'student',
+                isSubscribed: false,
+                subscribedCourses: []
+            };
+            setUsers([...users, user]);
+        }
         setIsAdding(false);
-        setNewUser({ name: '', phone: '', password: '', grade: 1 });
+        setNewUser({ name: '', phone: '', password: '', grade: 1, division: 'scientific' });
+    };
+
+    const handleEditClick = (user) => {
+        setNewUser(user);
+        setIsEditing(true);
+        setIsAdding(true);
     };
 
     const toggleSubscription = (userId) => {
@@ -60,6 +74,78 @@ export default function AdminUsers() {
                     </Button>
                 </header>
 
+                {/* View User Modal */}
+                {viewingUser && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setViewingUser(null)}>
+                        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-2xl font-bold text-secondary">بيانات الطالب</h3>
+                                    <Button variant="ghost" size="icon" onClick={() => setViewingUser(null)}>
+                                        <XCircle size={24} />
+                                    </Button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 className="font-bold text-gray-700 mb-2">الصورة الشخصية</h4>
+                                        <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden border border-gray-200">
+                                            {viewingUser.image ? (
+                                                <img src={viewingUser.image} alt={viewingUser.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <UserPlus size={48} className="text-gray-300" />
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-sm text-gray-500">الاسم</label>
+                                            <p className="font-bold text-lg">{viewingUser.name}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">رقم الهاتف</label>
+                                            <p className="font-bold text-lg">{viewingUser.phone}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">البريد الإلكتروني</label>
+                                            <p className="font-bold text-lg">{viewingUser.email || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">الصف الدراسي</label>
+                                            <p className="font-bold text-lg">{grades.find(g => g.id === viewingUser.grade)?.title}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">الشعبة</label>
+                                            <p className="font-bold text-lg">{viewingUser.division === 'scientific' ? 'علمي' : viewingUser.division === 'literary' ? 'أدبي' : '-'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">نوع الطالب</label>
+                                            <p className="font-bold text-lg">{viewingUser.studentType === 'center' ? 'طالب سنتر' : 'طالب منصة'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {viewingUser.paymentMethod && (
+                                    <div className="mt-6 border-t pt-4 grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-sm text-gray-500">طريقة الدفع</label>
+                                            <p className="font-bold text-lg">{viewingUser.paymentMethod === 'vodafone' ? 'فودافون كاش' : 'InstaPay'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-500">رقم المحفظة / الحساب</label>
+                                            <p className="font-bold text-lg">{viewingUser.transactionId || '-'}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {viewingUser.paymentImage && (
+                                    <div className="mt-6 border-t pt-6">
+                                        <h4 className="font-bold text-gray-700 mb-2">صورة إيصال الدفع</h4>
+                                        <img src={viewingUser.paymentImage} alt="Payment Receipt" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
                 {/* Search */}
                 <div className="mb-6 relative max-w-md">
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -75,7 +161,7 @@ export default function AdminUsers() {
                 {isAdding && (
                     <Card className="mb-8 border-primary/20 bg-primary/5 animate-in slide-in-from-top-4">
                         <CardContent className="p-6">
-                            <h3 className="text-lg font-bold mb-4 text-primary">بيانات الطالب الجديد</h3>
+                            <h3 className="text-lg font-bold mb-4 text-primary">{isEditing ? 'تعديل بيانات الطالب' : 'بيانات الطالب الجديد'}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
                                     placeholder="الاسم ثلاثي"
@@ -101,10 +187,18 @@ export default function AdminUsers() {
                                         <option key={g.id} value={g.id}>{g.title}</option>
                                     ))}
                                 </select>
+                                <select
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                    value={newUser.division}
+                                    onChange={(e) => setNewUser({ ...newUser, division: e.target.value })}
+                                >
+                                    <option value="scientific">علمي</option>
+                                    <option value="literary">أدبي</option>
+                                </select>
                             </div>
                             <div className="flex gap-2 justify-end">
-                                <Button variant="ghost" onClick={() => setIsAdding(false)}>إلغاء</Button>
-                                <Button onClick={handleAddUser}>حفظ الطالب</Button>
+                                <Button variant="ghost" onClick={() => { setIsAdding(false); setIsEditing(false); setNewUser({ name: '', phone: '', password: '', grade: 1, division: 'scientific' }); }}>إلغاء</Button>
+                                <Button onClick={handleAddUser}>{isEditing ? 'حفظ التعديلات' : 'حفظ الطالب'}</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -147,7 +241,10 @@ export default function AdminUsers() {
                                         </button>
                                     </td>
                                     <td className="p-4 flex gap-2">
-                                        <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50">
+                                        <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50" onClick={() => setViewingUser(user)} title="عرض التفاصيل">
+                                            <Search size={18} />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50" onClick={() => handleEditClick(user)}>
                                             <Edit size={18} />
                                         </Button>
                                         <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(user.id)}>

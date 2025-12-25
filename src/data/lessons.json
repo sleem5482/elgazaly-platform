@@ -4,7 +4,8 @@
         "weekId": "w1",
         "title": "المبتدأ والخبر",
         "type": "video",
-        "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "explanationVideoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "solutionVideoUrl": "",
         "duration": "45:00",
         "order": 1
     },

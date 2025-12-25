@@ -33,31 +33,9 @@ export default function AdminSubscriptions() {
                 <header className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-secondary mb-2">إدارة الاشتراكات</h1>
-                        <p className="text-gray-500">توليد وإدارة أكواد تفعيل الاشتراكات</p>
+                        <p className="text-gray-500">إدارة اشتراكات الطلاب</p>
                     </div>
-                    <Button onClick={generateCode} className="gap-2 shadow-lg">
-                        <RefreshCw size={20} />
-                        توليد كود جديد
-                    </Button>
                 </header>
-
-                {/* Generated Code Display */}
-                {generatedCode && (
-                    <Card className="mb-8 bg-green-50 border-green-200 animate-in fade-in slide-in-from-top-4">
-                        <CardContent className="p-6 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-bold text-green-800 mb-1">تم توليد كود جديد بنجاح</h3>
-                                <p className="text-green-600">يمكنك نسخ الكود وإرساله للطالب</p>
-                            </div>
-                            <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-green-200 shadow-sm">
-                                <span className="font-mono text-xl font-bold tracking-wider text-secondary">{generatedCode}</span>
-                                <button onClick={() => copyToClipboard(generatedCode)} className="text-gray-400 hover:text-primary transition-colors" title="نسخ الكود">
-                                    <Copy size={20} />
-                                </button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
 
                 {/* Codes List */}
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">

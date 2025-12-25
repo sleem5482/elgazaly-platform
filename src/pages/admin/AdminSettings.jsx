@@ -4,10 +4,10 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { User, Phone, Lock, Save, Camera } from 'lucide-react';
+import { User, Phone, Lock, Save, Camera, Upload } from 'lucide-react';
 
 export default function AdminSettings() {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const [formData, setFormData] = useState({
         name: user?.name || '',
         phone: user?.phone || '',
@@ -15,9 +15,40 @@ export default function AdminSettings() {
         newPassword: '',
         confirmPassword: ''
     });
+    const [profileImage, setProfileImage] = useState(user?.profileImage || null);
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Update user with new data
+        const updatedUser = {
+            ...user,
+            name: formData.name,
+            phone: formData.phone,
+            profileImage: profileImage
+        };
+
+        // Save to context (this would normally save to backend)
+        if (setUser) {
+            setUser(updatedUser);
+        }
+
+        // Save to localStorage
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const updatedUsers = users.map(u => u.id === user.id ? updatedUser : u);
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+
         alert('تم حفظ التغييرات بنجاح');
     };
 
@@ -34,19 +65,33 @@ export default function AdminSettings() {
                     {/* Profile Picture Card */}
                     <Card className="border-none shadow-md bg-white h-fit">
                         <CardContent className="p-8 flex flex-col items-center text-center">
-                            <div className="relative mb-6 group cursor-pointer">
+                            <div className="relative mb-6 group">
                                 <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center text-primary text-4xl font-bold overflow-hidden border-4 border-white shadow-lg">
-                                    {user?.name?.[0]}
+                                    {profileImage ? (
+                                        <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        user?.name?.[0]
+                                    )}
                                 </div>
-                                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                <label htmlFor="profile-upload" className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                     <Camera size={24} />
-                                </div>
+                                </label>
+                                <input
+                                    id="profile-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
                             </div>
-                            <h2 className="text-xl font-bold text-dark mb-1">{user?.name}</h2>
+                            <h2 className="text-xl font-bold text-dark mb-1">{formData.name || user?.name}</h2>
                             <p className="text-gray-500 text-sm mb-4">مدير النظام</p>
-                            <Button variant="outline" className="w-full rounded-xl border-primary text-primary hover:bg-primary hover:text-white">
-                                تغيير الصورة
-                            </Button>
+                            <label htmlFor="profile-upload">
+                                <Button variant="outline" className="w-full rounded-xl border-primary text-primary hover:bg-primary hover:text-white" as="span">
+                                    <Upload size={18} className="ml-2" />
+                                    تغيير الصورة
+                                </Button>
+                            </label>
                         </CardContent>
                     </Card>
 
@@ -89,7 +134,13 @@ export default function AdminSettings() {
                                             <label className="block text-sm font-medium text-gray-700 mb-2">كلمة المرور الحالية</label>
                                             <div className="relative">
                                                 <Lock className="absolute right-3 top-3 text-gray-400" size={18} />
-                                                <Input type="password" className="pr-10" placeholder="••••••••" />
+                                                <Input
+                                                    type="password"
+                                                    className="pr-10"
+                                                    placeholder="••••••••"
+                                                    value={formData.currentPassword}
+                                                    onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                                                />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,14 +148,26 @@ export default function AdminSettings() {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">كلمة المرور الجديدة</label>
                                                 <div className="relative">
                                                     <Lock className="absolute right-3 top-3 text-gray-400" size={18} />
-                                                    <Input type="password" className="pr-10" placeholder="••••••••" />
+                                                    <Input
+                                                        type="password"
+                                                        className="pr-10"
+                                                        placeholder="••••••••"
+                                                        value={formData.newPassword}
+                                                        onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                                                    />
                                                 </div>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">تأكيد كلمة المرور</label>
                                                 <div className="relative">
                                                     <Lock className="absolute right-3 top-3 text-gray-400" size={18} />
-                                                    <Input type="password" className="pr-10" placeholder="••••••••" />
+                                                    <Input
+                                                        type="password"
+                                                        className="pr-10"
+                                                        placeholder="••••••••"
+                                                        value={formData.confirmPassword}
+                                                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>

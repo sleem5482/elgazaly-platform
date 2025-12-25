@@ -19,6 +19,7 @@ export default function PaymentPage() {
     const [selectedMethod, setSelectedMethod] = useState('vodafone');
     const [step, setStep] = useState(1);
     const [transactionId, setTransactionId] = useState('');
+    const [paymentImage, setPaymentImage] = useState('');
 
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
@@ -35,12 +36,27 @@ export default function PaymentPage() {
         setTimeout(() => {
             if (user && itemId) {
                 console.log('Calling subscribe...');
-                subscribe(user.id, itemId, itemType);
+                subscribe(user.id, itemId, itemType, {
+                    paymentMethod: selectedMethod,
+                    transactionId: transactionId,
+                    paymentImage: paymentImage
+                });
             } else {
                 console.error('Missing user or itemId', { user, itemId });
             }
             navigate('/dashboard');
         }, 3000);
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPaymentImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     return (
@@ -105,8 +121,8 @@ export default function PaymentPage() {
                                     <div className="bg-gray-50 p-6 rounded-xl mb-6">
                                         <p className="text-gray-500 mb-2">يرجى تحويل مبلغ <span className="font-bold text-dark">{price} ج.م</span> إلى الرقم التالي:</p>
                                         <div className="flex items-center justify-center gap-4">
-                                            <span className="text-3xl font-bold text-primary tracking-wider">01000000000</span>
-                                            <Button variant="ghost" size="icon" onClick={() => handleCopy('01000000000')}>
+                                            <span className="text-3xl font-bold text-primary tracking-wider">01050940343</span>
+                                            <Button variant="ghost" size="icon" onClick={() => handleCopy('01050940343')}>
                                                 <Copy size={20} className="text-gray-400 hover:text-primary" />
                                             </Button>
                                         </div>
@@ -118,11 +134,22 @@ export default function PaymentPage() {
                                     <form onSubmit={handleSubmit} className="text-right space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">رقم المحفظة / الحساب المحول منه</label>
-                                            <Input required placeholder="أدخل الرقم هنا" />
+                                            <Input
+                                                required
+                                                placeholder="أدخل الرقم هنا"
+                                                value={transactionId}
+                                                onChange={(e) => setTransactionId(e.target.value)}
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">صورة التحويل (اختياري)</label>
-                                            <Input type="file" className="pt-2" />
+                                            <Input type="file" className="pt-2" onChange={handleImageUpload} accept="image/*" />
+                                            {paymentImage && (
+                                                <div className="mt-2">
+                                                    <img src={paymentImage} alt="Preview" className="w-full h-32 object-contain border rounded-lg" />
+                                                    <p className="text-xs text-green-600 mt-1">✓ تم رفع الصورة</p>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex gap-4 mt-8">
                                             <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">

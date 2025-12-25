@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://elghazaly.runasp.net',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
+  }
 })

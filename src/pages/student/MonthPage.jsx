@@ -55,21 +55,12 @@ export default function MonthPage() {
                                             </p>
                                         </div>
                                         <div className="hidden md:block">
-                                            {checkSubscription(user?.id, week.id, 'week') ? (
-                                                <Link to={`/week/${week.id}`}>
-                                                    <button className="bg-secondary text-white px-6 py-2 rounded-xl hover:bg-secondary/90 transition-all flex items-center gap-2 shadow-lg shadow-secondary/20 hover:-translate-y-1">
-                                                        <span>ابدأ المذاكرة</span>
-                                                        <ChevronLeft size={16} />
-                                                    </button>
-                                                </Link>
-                                            ) : (
-                                                <Link to="/payment" state={{ itemType: 'week', itemTitle: week.title, price: '50', itemId: week.id }}>
-                                                    <button className="bg-primary text-white px-6 py-2 rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20 hover:-translate-y-1">
-                                                        <span>اشترك الآن</span>
-                                                        <Lock size={16} />
-                                                    </button>
-                                                </Link>
-                                            )}
+                                            <Link to={`/week/${week.id}`}>
+                                                <button className="bg-secondary text-white px-6 py-2 rounded-xl hover:bg-secondary/90 transition-all flex items-center gap-2 shadow-lg shadow-secondary/20 hover:-translate-y-1">
+                                                    <span>ابدأ المذاكرة</span>
+                                                    <ChevronLeft size={16} />
+                                                </button>
+                                            </Link>
                                         </div>
                                     </div>
 

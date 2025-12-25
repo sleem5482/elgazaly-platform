@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
+import ForgotPasswordPage from './pages/public/ForgotPasswordPage';
+import FreeExamPage from './pages/public/FreeExamPage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import GradePage from './pages/student/GradePage';
 import MonthPage from './pages/student/MonthPage';
@@ -17,18 +20,52 @@ import AdminCourses from './pages/admin/AdminCourses';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 import AdminContent from './pages/admin/AdminContent';
+import AdminExams from './pages/admin/AdminExams';
 import AdminSettings from './pages/admin/AdminSettings';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 function App() {
+  useEffect(() => {
+    // Disable right click
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    // Disable keyboard shortcuts
+    const handleKeyDown = (e) => {
+      // Prevent Print Screen
+      if (e.key === 'PrintScreen') {
+        e.preventDefault();
+        alert('Screenshots are disabled');
+        return false;
+      }
+
+      // Prevent Ctrl+P, Ctrl+S, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+C
+      if (e.ctrlKey && (e.key === 'p' || e.key === 's' || e.key === 'u' || (e.shiftKey && (e.key === 'i' || e.key === 'c')))) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
+    <div className="min-h-screen bg-gray-50 font-sans text-right select-none" dir="rtl">
       <Navbar />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/free-exam/:examId" element={<FreeExamPage />} />
 
         {/* Student Routes */}
         <Route path="/dashboard" element={
@@ -101,6 +138,11 @@ function App() {
         <Route path="/admin/content" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminContent />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/exams" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminExams />
           </ProtectedRoute>
         } />
         <Route path="/admin/settings" element={

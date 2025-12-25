@@ -75,9 +75,14 @@ export default function GradePage() {
                                                 <h3 className="text-xl font-bold">{month.title}</h3>
                                             </div>
                                             <div className="absolute top-4 left-4 z-20">
-                                                <Badge className="bg-accent text-dark font-bold shadow-lg">
-                                                    150 ج.م
-                                                </Badge>
+                                                {(() => {
+                                                    const course = gradeCourses.find(c => c.id === month.courseId);
+                                                    return (
+                                                        <Badge className="bg-accent text-dark font-bold shadow-lg">
+                                                            {course?.price || 500} ج.م
+                                                        </Badge>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
 
@@ -98,21 +103,26 @@ export default function GradePage() {
                                                     </div>
                                                 </div>
 
-                                                {checkSubscription(user?.id, month.id, 'month') ? ( // Simulate isSubscribed check
-                                                    <Link to={`/month/${month.id}`} className="block">
-                                                        <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all flex items-center justify-center gap-2">
-                                                            <span>ابدأ المذاكرة</span>
-                                                            <ChevronLeft size={18} />
-                                                        </Button>
-                                                    </Link>
-                                                ) : (
-                                                    <Link to="/payment" state={{ itemType: 'month', itemTitle: month.title, price: '150', itemId: month.id }} className="block">
-                                                        <Button className="w-full bg-secondary hover:bg-secondary/90 text-white py-3 rounded-xl shadow-lg shadow-secondary/20 group-hover:shadow-secondary/40 transition-all flex items-center justify-center gap-2">
-                                                            <span>اشترك الآن</span>
-                                                            <Lock size={18} />
-                                                        </Button>
-                                                    </Link>
-                                                )}
+                                                {(() => {
+                                                    const course = gradeCourses.find(c => c.id === month.courseId);
+                                                    const isSubscribed = checkSubscription(user?.id, course?.id, 'course');
+
+                                                    return isSubscribed ? (
+                                                        <Link to={`/month/${month.id}`} className="block">
+                                                            <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all flex items-center justify-center gap-2">
+                                                                <span>ابدأ المذاكرة</span>
+                                                                <ChevronLeft size={18} />
+                                                            </Button>
+                                                        </Link>
+                                                    ) : (
+                                                        <Link to="/payment" state={{ itemType: 'course', itemTitle: course?.title, price: course?.price || 500, itemId: course?.id }} className="block">
+                                                            <Button className="w-full bg-secondary hover:bg-secondary/90 text-white py-3 rounded-xl shadow-lg shadow-secondary/20 group-hover:shadow-secondary/40 transition-all flex items-center justify-center gap-2">
+                                                                <span>اشترك في الكورس - {course?.price || 500} ج.م</span>
+                                                                <Lock size={18} />
+                                                            </Button>
+                                                        </Link>
+                                                    );
+                                                })()}
                                             </div>
                                         </CardContent>
                                     </Card>

@@ -4,15 +4,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { UserPlus, Phone, Lock, User, GraduationCap, ArrowLeft } from 'lucide-react';
+import { UserPlus, Phone, Lock, User, GraduationCap, ArrowLeft, Mail } from 'lucide-react';
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
         phone: '',
         password: '',
         grade: '1',
-        division: 'scientific'
+        division: 'scientific',
+        studentType: 'platform'
     });
     const { register } = useAuth();
     const { grades } = useData();
@@ -25,20 +27,60 @@ export default function RegisterPage() {
         setError('');
         setIsLoading(true);
 
-        setTimeout(() => {
-            const success = register(formData);
-            if (success) {
-                navigate('/dashboard');
-            } else {
-                setError('رقم الهاتف مسجل بالفعل');
+        try {
+            // Validate required fields
+            if (!formData.name || !formData.phone || !formData.password) {
+                setError('الرجاء ملء جميع الحقول المطلوبة');
                 setIsLoading(false);
+                return;
             }
-        }, 1000);
+
+            // Prepare data for API expecting Enums/Integers
+            // Prepare data for API expecting PascalCase (C# style)
+            const gradeId = parseInt(formData.grade);
+            
+            // Validate grade ID
+            if (isNaN(gradeId) || gradeId < 1) {
+                setError('الرجاء اختيار صف دراسي صحيح');
+                setIsLoading(false);
+                return;
+            }
+
+            const apiData = {
+                FullName: formData.name.trim(),
+                PhoneNumber: formData.phone.trim(),
+                Password: formData.password,
+                ConfirmPassword: formData.password,
+                GradeId: gradeId,
+                StudentType: formData.studentType === 'platform' ? 0 : 1,
+                Division: formData.division === 'scientific' ? 0 : 1,
+            };
+
+            // UserName is typically required by ASP.NET Identity
+            // Use email if provided, otherwise use phone number
+            if (formData.email && formData.email.trim()) {
+                apiData.Email = formData.email.trim();
+                apiData.UserName = formData.email.trim();
+            } else {
+                // Use phone number as username if email is not provided
+                apiData.UserName = formData.phone.trim();
+                // Some APIs require Email field even if empty
+                apiData.Email = formData.phone.trim() + '@elghazaly.com';
+            }
+
+            console.log('Registration payload:', JSON.stringify(apiData, null, 2));
+            await register(apiData);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(err.message || 'حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="min-h-screen flex bg-white font-sans">
-            {/* Left Side - Image/Branding (Swapped for variety or keep consistent) */}
+            {/* Left Side - Image/Branding */}
             <div className="hidden lg:block relative w-0 flex-1 bg-secondary overflow-hidden order-2">
                 <div className="absolute inset-0 bg-gradient-to-bl from-secondary to-primary opacity-90"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-12 text-center z-10">
@@ -80,6 +122,22 @@ export default function RegisterPage() {
                                     placeholder="اسمك بالكامل"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <Input
+                                    type="email"
+                                    className="pr-10 py-3 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                                    placeholder="example@email.com"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                         </div>
@@ -133,6 +191,38 @@ export default function RegisterPage() {
                                     <option value="scientific">علمي</option>
                                     <option value="literary">أدبي</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">نوع الطالب</label>
+                            <div className="flex gap-4">
+                                <label className="flex-1 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="studentType"
+                                        value="platform"
+                                        checked={formData.studentType === 'platform'}
+                                        onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
+                                        className="hidden peer"
+                                    />
+                                    <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
+                                        طالب منصة
+                                    </div>
+                                </label>
+                                <label className="flex-1 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="studentType"
+                                        value="center"
+                                        checked={formData.studentType === 'center'}
+                                        onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
+                                        className="hidden peer"
+                                    />
+                                    <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
+                                        طالب سنتر
+                                    </div>
+                                </label>
                             </div>
                         </div>
 

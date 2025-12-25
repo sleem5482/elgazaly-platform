@@ -10,32 +10,39 @@ export default function AdminCourses() {
     const { courses, setCourses, grades } = useData();
     const [searchTerm, setSearchTerm] = useState('');
     const [isAdding, setIsAdding] = useState(false);
-    const [newCourse, setNewCourse] = useState({ title: '', gradeId: 1, description: '' });
+    const [isEditing, setIsEditing] = useState(false);
+    const [newCourse, setNewCourse] = useState({ title: '', gradeId: 1, description: '', price: 0 });
 
     const filteredCourses = courses.filter(c => c.title.includes(searchTerm));
 
     const handleAddCourse = () => {
-        console.log('Attempting to add course:', newCourse);
         if (!newCourse.title) {
             alert('الرجاء إدخال اسم الكورس');
             return;
         }
-        const course = {
-            id: `c${Date.now()}`,
-            ...newCourse,
-            gradeId: Number(newCourse.gradeId)
-        };
-        console.log('Creating new course object:', course);
 
-        setCourses(prev => {
-            const updated = [...prev, course];
-            console.log('Updated courses list:', updated);
-            return updated;
-        });
+        if (isEditing) {
+            setCourses(courses.map(c => c.id === newCourse.id ? { ...c, ...newCourse, gradeId: Number(newCourse.gradeId) } : c));
+            setIsEditing(false);
+            alert('تم تعديل الكورس بنجاح');
+        } else {
+            const course = {
+                id: `c${Date.now()}`,
+                ...newCourse,
+                gradeId: Number(newCourse.gradeId)
+            };
+            setCourses(prev => [...prev, course]);
+            alert('تم إضافة الكورس بنجاح');
+        }
 
         setIsAdding(false);
-        setNewCourse({ title: '', gradeId: 1, description: '' });
-        alert('تم إضافة الكورس بنجاح');
+        setNewCourse({ title: '', gradeId: 1, description: '', price: 0 });
+    };
+
+    const handleEditClick = (course) => {
+        setNewCourse(course);
+        setIsEditing(true);
+        setIsAdding(true);
     };
 
     const handleDelete = (id) => {
@@ -74,7 +81,7 @@ export default function AdminCourses() {
                 {isAdding && (
                     <Card className="mb-8 border-primary/20 bg-primary/5 animate-in slide-in-from-top-4">
                         <CardContent className="p-6">
-                            <h3 className="text-lg font-bold mb-4 text-primary">بيانات الكورس الجديد</h3>
+                            <h3 className="text-lg font-bold mb-4 text-primary">{isEditing ? 'تعديل الكورس' : 'بيانات الكورس الجديد'}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
                                     placeholder="اسم الكورس"
@@ -91,15 +98,20 @@ export default function AdminCourses() {
                                     ))}
                                 </select>
                                 <Input
+                                    type="number"
+                                    placeholder="سعر الكورس (جنيه)"
+                                    value={newCourse.price || ''}
+                                    onChange={(e) => setNewCourse({ ...newCourse, price: parseInt(e.target.value) || 0 })}
+                                />
+                                <Input
                                     placeholder="وصف الكورس"
-                                    className="md:col-span-2"
                                     value={newCourse.description}
                                     onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
                                 />
                             </div>
                             <div className="flex gap-2 justify-end">
-                                <Button variant="ghost" onClick={() => setIsAdding(false)}>إلغاء</Button>
-                                <Button onClick={handleAddCourse}>حفظ الكورس</Button>
+                                <Button variant="ghost" onClick={() => { setIsAdding(false); setIsEditing(false); setNewCourse({ title: '', gradeId: 1, description: '', price: 0 }); }}>إلغاء</Button>
+                                <Button onClick={handleAddCourse}>{isEditing ? 'حفظ التعديلات' : 'حفظ الكورس'}</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -112,11 +124,14 @@ export default function AdminCourses() {
                             <CardContent className="p-6 flex items-center justify-between">
                                 <div>
                                     <h3 className="text-xl font-bold text-secondary mb-1 group-hover:text-primary transition-colors">{course.title}</h3>
-                                    <p className="text-gray-500 text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded mb-2">{grades.find(g => g.id === course.gradeId)?.title}</p>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <p className="text-gray-500 text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded">{grades.find(g => g.id === course.gradeId)?.title}</p>
+                                        {course.price && <p className="text-primary text-sm font-bold bg-primary/10 inline-block px-2 py-1 rounded">{course.price} جنيه</p>}
+                                    </div>
                                     <p className="text-gray-400 text-sm">{course.description}</p>
                                 </div>
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50">
+                                    <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50" onClick={() => handleEditClick(course)}>
                                         <Edit size={18} />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(course.id)}>

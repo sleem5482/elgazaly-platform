@@ -19,16 +19,18 @@ export default function LoginPage() {
         setError('');
         setIsLoading(true);
 
-        // Simulate network delay
-        setTimeout(() => {
-            const success = login(identifier, password, loginMethod);
+        try {
+            const success = await login(identifier, password, loginMethod);
             if (success) {
                 navigate('/dashboard');
             } else {
                 setError(loginMethod === 'phone' ? 'رقم الهاتف أو كلمة المرور غير صحيحة' : 'كود الطالب أو كلمة المرور غير صحيحة');
-                setIsLoading(false);
             }
-        }, 1000);
+        } catch (err) {
+            setError(err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -97,6 +99,11 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                            </div>
+                            <div className="text-left mt-2">
+                                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                                    نسيت كلمة المرور؟
+                                </Link>
                             </div>
                         </div>
 

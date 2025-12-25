@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import Sidebar from '../../components/layout/Sidebar';
 import Button from '../../components/ui/Button';
@@ -9,15 +10,16 @@ import ExamRunner from '../../components/student/ExamRunner';
 
 export default function LessonPage() {
     const { lessonId } = useParams();
-    const { lessons, weeks, exams } = useData();
+    const { lessons, weeks, checkSubscription } = useData();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('video');
 
     const lesson = lessons.find(l => l.id === lessonId);
     const week = weeks.find(w => w.id === lesson?.weekId);
     const weekLessons = lessons.filter(l => l.weekId === lesson?.weekId);
 
-    // Simulated subscription check
-    const isSubscribed = true; // Toggle this to test locked state
+    // Real subscription check
+    const isSubscribed = user && week ? checkSubscription(user.id, week.id, 'week') : false;
 
     if (!lesson) return <div className="p-8">Lesson not found</div>;
 
