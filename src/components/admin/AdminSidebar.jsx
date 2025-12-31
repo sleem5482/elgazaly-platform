@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { LayoutDashboard, Users, BookOpen, FileText, Settings, LogOut, CreditCard, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, FileText, Settings, LogOut, CreditCard, ClipboardList, GraduationCap, Layers } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminSidebar() {
@@ -14,6 +14,8 @@ export default function AdminSidebar() {
         { name: 'الاشتراكات', path: '/admin/subscriptions', icon: CreditCard },
         { name: 'المحتوى', path: '/admin/content', icon: FileText },
         { name: 'الاختبارات', path: '/admin/exams', icon: ClipboardList },
+        { name: 'الصفوف', path: '/admin/grades', icon: GraduationCap },
+        { name: 'الشعب', path: '/admin/sections', icon: Layers },
         { name: 'الإعدادات', path: '/admin/settings', icon: Settings },
     ];
 

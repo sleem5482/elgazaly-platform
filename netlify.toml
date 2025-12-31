@@ -21,3 +21,14 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/Admin/grades/*"
+  to = "/.netlify/functions/auth-admin-grades"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/Admin/sections/*"
+  to = "/.netlify/functions/auth-admin-sections"
+  status = 200
+  force = true

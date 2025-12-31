@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    const login = async (identifier, password, loginType = 'Online') => {
+    const login = async (identifier, password, loginType) => {
         try {
             // Prepare payload according to API requirements
             // API expects: loginType (Online, Center, Admin), identifier (phone number, code, or email), password
@@ -64,6 +64,11 @@ export function AuthProvider({ children }) {
             console.groupEnd();
 
             if (!response.ok) {
+                // Handle empty response
+                if (!responseText || responseText.trim() === '') {
+                    throw new Error(`خطأ في الخادم (${response.status}). يرجى المحاولة مرة أخرى.`);
+                }
+                
                 try {
                     const errorJson = JSON.parse(responseText);
                     
@@ -73,18 +78,23 @@ export function AuthProvider({ children }) {
                         throw new Error(messages);
                     }
                     
-                    throw new Error(errorJson.message || errorJson.error || errorJson.title || responseText);
+                    throw new Error(errorJson.message || errorJson.error || errorJson.title || `خطأ في الخادم (${response.status})`);
                 } catch (parseErr) {
-                    if (parseErr instanceof Error && parseErr.message && !parseErr.message.includes('JSON')) {
+                    if (parseErr instanceof Error && parseErr.message && !parseErr.message.includes('JSON') && !parseErr.message.includes('parse')) {
                         throw parseErr;
                     }
                     console.error("Parse Error:", parseErr);
-                    throw new Error(responseText || 'بيانات الدخول غير صحيحة');
+                    // If responseText exists, use it (might be HTML or plain text)
+                    throw new Error(responseText.length > 200 ? responseText.substring(0, 200) + '...' : responseText || 'بيانات الدخول غير صحيحة');
                 }
             }
 
-            // Parse successful response
-            const data = responseText ? JSON.parse(responseText) : {};
+            // Parse successful response - handle empty response
+            if (!responseText || responseText.trim() === '') {
+                throw new Error('استجابة فارغة من الخادم. يرجى المحاولة مرة أخرى.');
+            }
+            
+            const data = JSON.parse(responseText);
             // Determine role based on loginType or studentType
             // Admin login type or studentType === 0 means admin
             let userRole = 'student';

@@ -1,21 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 
 const DataContext = createContext();
-
-const defaultGrades = [
-    {
-        id: 1,
-        title: "الصف الأول الثانوي"
-    },
-    {
-        id: 2,
-        title: "الصف الثاني الثانوي"
-    },
-    {
-        id: 3,
-        title: "الصف الثالث الثانوي"
-    }
-];
 
 export function DataProvider({ children }) {
     // Users are now managed via API, but keep for backward compatibility
@@ -24,10 +10,10 @@ export function DataProvider({ children }) {
         return stored ? JSON.parse(stored) : [];
     });
 
-    // Grades are still needed for forms
+    // Grades are fetched from API
     const [grades, setGrades] = useState(() => {
         const stored = localStorage.getItem('grades');
-        return stored ? JSON.parse(stored) : defaultGrades;
+        return stored ? JSON.parse(stored) : [];
     });
 
     // Other data - provide empty defaults since they're not being used from API yet
@@ -70,6 +56,39 @@ export function DataProvider({ children }) {
         const stored = localStorage.getItem('freeExams');
         return stored ? JSON.parse(stored) : [];
     });
+
+    // Fetch grades from API on mount
+    useEffect(() => {
+        const fetchGrades = async () => {
+            try {
+                const response = await fetch(API_ENDPOINTS.ADMIN.GRADES, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Transform API response to match expected format (id, title/name)
+                    const transformedGrades = Array.isArray(data) 
+                        ? data.map(grade => ({
+                            id: grade.id,
+                            title: grade.name || grade.title,
+                            name: grade.name || grade.title
+                        }))
+                        : [];
+                    setGrades(transformedGrades);
+                }
+            } catch (err) {
+                console.error('Error fetching grades from API:', err);
+                // Silently fail - grades will remain from localStorage or empty
+            }
+        };
+
+        fetchGrades();
+    }, []); // Only run once on mount
 
     // Sync to localStorage
     useEffect(() => localStorage.setItem('users', JSON.stringify(users)), [users]);

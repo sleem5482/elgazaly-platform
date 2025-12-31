@@ -22,6 +22,8 @@ import AdminSubscriptions from './pages/admin/AdminSubscriptions';
 import AdminContent from './pages/admin/AdminContent';
 import AdminExams from './pages/admin/AdminExams';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminGrades from './pages/admin/AdminGrades';
+import AdminSections from './pages/admin/AdminSections';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 function App() {
@@ -148,6 +150,16 @@ function App() {
         <Route path="/admin/settings" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminSettings />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/grades" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminGrades />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/sections" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminSections />
           </ProtectedRoute>
         } />
       </Routes>
