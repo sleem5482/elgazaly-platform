@@ -11,9 +11,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://elghazaly.runasp.net',
+        target: 'http://localhost:5114',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       }
     }
   }

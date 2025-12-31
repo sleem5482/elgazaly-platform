@@ -234,13 +234,52 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const forgotPassword = async (identifier) => {
+        try {
+            console.group('🔐 Forgot Password Request');
+            console.log('URL:', API_ENDPOINTS.AUTH.FORGOT_PASSWORD);
+            console.log('Identifier:', identifier);
+            console.groupEnd();
+
+            const response = await fetch(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ identifier }),
+            });
+
+            const responseText = await response.text();
+
+            console.group('🔐 Forgot Password Response');
+            console.log('Status:', response.status);
+            console.log('Response:', responseText);
+            console.groupEnd();
+
+            if (!response.ok) {
+                try {
+                    const errorJson = JSON.parse(responseText);
+                    throw new Error(errorJson.message || errorJson.error || 'فشلت عملية استعادة كلمة المرور');
+                } catch (e) {
+                    throw new Error(responseText || 'فشلت عملية استعادة كلمة المرور');
+                }
+            }
+            
+            return true;
+        } catch (err) {
+            console.error("❌ Forgot Password Error:", err);
+            throw err;
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('currentUser');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, forgotPassword, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

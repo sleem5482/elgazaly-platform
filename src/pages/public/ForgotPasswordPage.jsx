@@ -1,23 +1,30 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
+    const { forgotPassword } = useAuth();
     const [email, setEmail] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setError('');
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            await forgotPassword(email);
             setIsSubmitted(true);
-        }, 1500);
+        } catch (err) {
+            setError(err.message || 'حدث خطأ أثناء محاولة استعادة كلمة المرور');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -40,6 +47,12 @@ export default function ForgotPasswordPage() {
                         <h2 className="text-3xl font-bold text-secondary mb-2">نسيت كلمة المرور؟</h2>
                         <p className="text-gray-500">أدخل البريد الإلكتروني أو رقم الهاتف لاستعادة حسابك</p>
                     </div>
+
+                    {error && (
+                        <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm text-center">
+                            {error}
+                        </div>
+                    )}
 
                     {!isSubmitted ? (
                         <form onSubmit={handleSubmit} className="space-y-6">
