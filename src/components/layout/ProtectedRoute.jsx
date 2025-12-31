@@ -20,8 +20,11 @@ export default function ProtectedRoute({ children, allowedRoles, allowedGrade })
     // Admin bypasses grade check
     if (user.role === 'admin') return children;
 
-    if (allowedGrade && user.grade !== allowedGrade) {
-        return <Navigate to="/dashboard" replace />;
+    if (allowedGrade) {
+        const userGrade = user.gradeId || user.grade;
+        if (userGrade !== allowedGrade) {
+            return <Navigate to="/dashboard" replace />;
+        }
     }
 
     return children;

@@ -7,6 +7,11 @@ export const API_ENDPOINTS = {
     AUTH: {
         LOGIN: `${API_BASE_URL}/Auth/login`,
         REGISTER: `${API_BASE_URL}/Auth/register`,
+    },
+    ADMIN: {
+        STUDENTS: `${API_BASE_URL}/Admin/students`,
+        STUDENT_BY_ID: (id) => `${API_BASE_URL}/Admin/students/${id}`,
+        TOGGLE_ACTIVE: (id) => `${API_BASE_URL}/Admin/students/${id}/toggle-active`,
     }
 };
 

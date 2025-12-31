@@ -13,8 +13,8 @@ export default function RegisterPage() {
         phone: '',
         password: '',
         grade: '1',
-        division: 'scientific',
-        studentType: 'platform'
+        section: '1', // 1 = علمي, 2 = ادبي
+        studentType: '2' // 1 = Center, 2 = Online
     });
     const { register } = useAuth();
     const { grades } = useData();
@@ -35,38 +35,41 @@ export default function RegisterPage() {
                 return;
             }
 
-            // Prepare data for API expecting Enums/Integers
-            // Prepare data for API expecting PascalCase (C# style)
+            // Prepare data for API - matching exact API structure
             const gradeId = parseInt(formData.grade);
+            const sectionId = parseInt(formData.section);
+            const studentType = parseInt(formData.studentType);
             
-            // Validate grade ID
-            if (isNaN(gradeId) || gradeId < 1) {
+            // Validate grade ID (1 = أولي ثانوي, 2 = تانيه, 3 = تالته)
+            if (isNaN(gradeId) || gradeId < 1 || gradeId > 3) {
                 setError('الرجاء اختيار صف دراسي صحيح');
                 setIsLoading(false);
                 return;
             }
 
-            const apiData = {
-                FullName: formData.name.trim(),
-                PhoneNumber: formData.phone.trim(),
-                Password: formData.password,
-                ConfirmPassword: formData.password,
-                GradeId: gradeId,
-                StudentType: formData.studentType === 'platform' ? 0 : 1,
-                Division: formData.division === 'scientific' ? 0 : 1,
-            };
-
-            // UserName is typically required by ASP.NET Identity
-            // Use email if provided, otherwise use phone number
-            if (formData.email && formData.email.trim()) {
-                apiData.Email = formData.email.trim();
-                apiData.UserName = formData.email.trim();
-            } else {
-                // Use phone number as username if email is not provided
-                apiData.UserName = formData.phone.trim();
-                // Some APIs require Email field even if empty
-                apiData.Email = formData.phone.trim() + '@elghazaly.com';
+            // Validate section ID (1 = علمي, 2 = ادبي)
+            if (isNaN(sectionId) || sectionId < 1 || sectionId > 2) {
+                setError('الرجاء اختيار شعبة صحيحة');
+                setIsLoading(false);
+                return;
             }
+
+            // Validate student type (1 = Center, 2 = Online)
+            if (isNaN(studentType) || (studentType !== 1 && studentType !== 2)) {
+                setError('الرجاء اختيار نوع طالب صحيح');
+                setIsLoading(false);
+                return;
+            }
+
+            const apiData = {
+                fullName: formData.name.trim(),
+                email: formData.email.trim() || formData.phone.trim() + '@elghazaly.com',
+                phoneNumber: formData.phone.trim(),
+                studentType: studentType, // 1 = Center, 2 = Online
+                gradeId: gradeId, // 1 = أولي ثانوي, 2 = تانيه, 3 = تالته
+                sectionId: sectionId, // 1 = علمي, 2 = ادبي
+                password: formData.password
+            };
 
             console.log('Registration payload:', JSON.stringify(apiData, null, 2));
             await register(apiData);
@@ -185,11 +188,11 @@ export default function RegisterPage() {
                                 </div>
                                 <select
                                     className="w-full pr-10 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-right"
-                                    value={formData.division}
-                                    onChange={(e) => setFormData({ ...formData, division: e.target.value })}
+                                    value={formData.section}
+                                    onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                                 >
-                                    <option value="scientific">علمي</option>
-                                    <option value="literary">أدبي</option>
+                                    <option value="1">علمي</option>
+                                    <option value="2">ادبي</option>
                                 </select>
                             </div>
                         </div>
@@ -201,26 +204,26 @@ export default function RegisterPage() {
                                     <input
                                         type="radio"
                                         name="studentType"
-                                        value="platform"
-                                        checked={formData.studentType === 'platform'}
+                                        value="2"
+                                        checked={formData.studentType === '2'}
                                         onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
                                         className="hidden peer"
                                     />
                                     <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
-                                        طالب منصة
+                                        Online
                                     </div>
                                 </label>
                                 <label className="flex-1 cursor-pointer">
                                     <input
                                         type="radio"
                                         name="studentType"
-                                        value="center"
-                                        checked={formData.studentType === 'center'}
+                                        value="1"
+                                        checked={formData.studentType === '1'}
                                         onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
                                         className="hidden peer"
                                     />
                                     <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
-                                        طالب سنتر
+                                        Center
                                     </div>
                                 </label>
                             </div>

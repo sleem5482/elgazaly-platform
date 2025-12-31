@@ -1,50 +1,59 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import usersData from '../data/users.json';
-import gradesData from '../data/grades.json';
-import coursesData from '../data/courses.json';
-import monthsData from '../data/months.json';
-import weeksData from '../data/weeks.json';
-import lessonsData from '../data/lessons.json';
-import examsData from '../data/exams.json';
-import freeVideosData from '../data/freeVideos.json';
-import freeExamsData from '../data/freeExams.json';
 
 const DataContext = createContext();
 
+const defaultGrades = [
+    {
+        id: 1,
+        title: "الصف الأول الثانوي"
+    },
+    {
+        id: 2,
+        title: "الصف الثاني الثانوي"
+    },
+    {
+        id: 3,
+        title: "الصف الثالث الثانوي"
+    }
+];
+
 export function DataProvider({ children }) {
+    // Users are now managed via API, but keep for backward compatibility
     const [users, setUsers] = useState(() => {
         const stored = localStorage.getItem('users');
-        return stored ? JSON.parse(stored) : usersData;
+        return stored ? JSON.parse(stored) : [];
     });
 
+    // Grades are still needed for forms
     const [grades, setGrades] = useState(() => {
         const stored = localStorage.getItem('grades');
-        return stored ? JSON.parse(stored) : gradesData;
+        return stored ? JSON.parse(stored) : defaultGrades;
     });
 
+    // Other data - provide empty defaults since they're not being used from API yet
     const [courses, setCourses] = useState(() => {
         const stored = localStorage.getItem('courses');
-        return stored ? JSON.parse(stored) : coursesData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [months, setMonths] = useState(() => {
         const stored = localStorage.getItem('months');
-        return stored ? JSON.parse(stored) : monthsData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [weeks, setWeeks] = useState(() => {
         const stored = localStorage.getItem('weeks');
-        return stored ? JSON.parse(stored) : weeksData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [lessons, setLessons] = useState(() => {
         const stored = localStorage.getItem('lessons');
-        return stored ? JSON.parse(stored) : lessonsData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [exams, setExams] = useState(() => {
         const stored = localStorage.getItem('exams');
-        return stored ? JSON.parse(stored) : examsData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [subscriptions, setSubscriptions] = useState(() => {
@@ -54,12 +63,12 @@ export function DataProvider({ children }) {
 
     const [freeVideos, setFreeVideos] = useState(() => {
         const stored = localStorage.getItem('freeVideos');
-        return stored ? JSON.parse(stored) : freeVideosData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     const [freeExams, setFreeExams] = useState(() => {
         const stored = localStorage.getItem('freeExams');
-        return stored ? JSON.parse(stored) : freeExamsData;
+        return stored ? JSON.parse(stored) : [];
     });
 
     // Sync to localStorage

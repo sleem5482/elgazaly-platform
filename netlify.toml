@@ -15,3 +15,9 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/Admin/students/*"
+  to = "/.netlify/functions/auth-admin-students"
+  status = 200
+  force = true
+

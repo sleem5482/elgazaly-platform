@@ -12,19 +12,31 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const storedUser = localStorage.getItem('currentUser');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const userData = JSON.parse(storedUser);
+            // Ensure role is set if missing (for backward compatibility)
+            if (!userData.role) {
+                if (userData.studentType === 0) {
+                    userData.role = 'admin';
+                } else {
+                    userData.role = 'student';
+                }
+                setUser(userData);
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+            } else {
+                setUser(userData);
+            }
         }
         setLoading(false);
     }, []);
 
-    const login = async (identifier, password, method = 'phone') => {
+    const login = async (identifier, password, loginType = 'Online') => {
         try {
             // Prepare payload according to API requirements
-            // API expects: LoginType, Identifier, Password
+            // API expects: loginType (Online, Center, Admin), identifier (phone number, code, or email), password
             const payload = {
-                LoginType: method === 'code' ? 'Code' : 'Phone',
-                Identifier: identifier.trim(),
-                Password: password
+                loginType: loginType, // Online, Center, or Admin
+                identifier: identifier.trim(),
+                password: password
             };
 
             console.group('🔐 Login Request');
@@ -73,8 +85,26 @@ export function AuthProvider({ children }) {
 
             // Parse successful response
             const data = responseText ? JSON.parse(responseText) : {};
-            setUser(data);
-            localStorage.setItem('currentUser', JSON.stringify(data));
+            // Determine role based on loginType or studentType
+            // Admin login type or studentType === 0 means admin
+            let userRole = 'student';
+            if (loginType === 'Admin' || data.studentType === 0 || data.role === 'admin') {
+                userRole = 'admin';
+            }
+            
+            // Normalize user data structure for consistent access (API returns fullName, phoneNumber, gradeId, etc.)
+            const normalizedUser = {
+                ...data,
+                name: data.fullName || data.name,
+                fullName: data.fullName || data.name,
+                grade: data.gradeId || data.grade,
+                gradeId: data.gradeId || data.grade,
+                phone: data.phoneNumber || data.phone,
+                phoneNumber: data.phoneNumber || data.phone,
+                role: userRole, // Set role based on login type or API response
+            };
+            setUser(normalizedUser);
+            localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
             return true;
         } catch (err) {
             console.error("❌ Login Error:", err);
@@ -174,9 +204,23 @@ export function AuthProvider({ children }) {
 
             // Parse the successful response
             const data = responseText ? JSON.parse(responseText) : {};
-            setUser(data);
-            localStorage.setItem('currentUser', JSON.stringify(data));
-            setUsers(prev => [...prev, data]);
+            // Determine role - admin if studentType is 0, otherwise student
+            const userRole = data.studentType === 0 ? 'admin' : 'student';
+            
+            // Normalize user data structure for consistent access (API returns fullName, phoneNumber, gradeId, etc.)
+            const normalizedUser = {
+                ...data,
+                name: data.fullName || data.name,
+                fullName: data.fullName || data.name,
+                grade: data.gradeId || data.grade,
+                gradeId: data.gradeId || data.grade,
+                phone: data.phoneNumber || data.phone,
+                phoneNumber: data.phoneNumber || data.phone,
+                role: userRole, // Set role based on studentType
+            };
+            setUser(normalizedUser);
+            localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
+            setUsers(prev => [...prev, normalizedUser]);
             return true;
         } catch (err) {
             console.error("❌ Registration Error:", err);

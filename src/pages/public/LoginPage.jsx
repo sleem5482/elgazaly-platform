@@ -6,8 +6,8 @@ import Input from '../../components/ui/Input';
 import { User, Phone, Lock, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
-    const [loginMethod, setLoginMethod] = useState('phone'); // 'phone' or 'code'
-    const [identifier, setIdentifier] = useState(''); // phone or code
+    const [loginType, setLoginType] = useState('Online'); // 'Online', 'Center', or 'Admin'
+    const [identifier, setIdentifier] = useState(''); // phone number, code, or email
     const [password, setPassword] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -20,11 +20,16 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            const success = await login(identifier, password, loginMethod);
+            const success = await login(identifier, password, loginType);
             if (success) {
-                navigate('/dashboard');
+                // Navigate based on login type
+                if (loginType === 'Admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/dashboard');
+                }
             } else {
-                setError(loginMethod === 'phone' ? 'رقم الهاتف أو كلمة المرور غير صحيحة' : 'كود الطالب أو كلمة المرور غير صحيحة');
+                setError('بيانات الدخول غير صحيحة');
             }
         } catch (err) {
             setError(err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.');
@@ -43,42 +48,49 @@ export default function LoginPage() {
                         <p className="text-gray-500 text-lg">جاهز للمذاكرة؟ سجل دخولك الآن</p>
                     </div>
 
-                    {/* Login Method Toggle */}
-                    <div className="flex p-1 bg-gray-100 rounded-xl mb-8">
+                    {/* Login Type Toggle */}
+                    <div className="grid grid-cols-3 gap-2 p-1 bg-gray-100 rounded-xl mb-8">
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${loginMethod === 'phone' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            onClick={() => setLoginMethod('phone')}
+                            className={`py-2 text-sm font-bold rounded-lg transition-all ${loginType === 'Online' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setLoginType('Online')}
                         >
-                            رقم الهاتف
+                            Online
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${loginMethod === 'code' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                            onClick={() => setLoginMethod('code')}
+                            className={`py-2 text-sm font-bold rounded-lg transition-all ${loginType === 'Center' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setLoginType('Center')}
                         >
-                            كود الطالب
+                            Center
+                        </button>
+                        <button
+                            type="button"
+                            className={`py-2 text-sm font-bold rounded-lg transition-all ${loginType === 'Admin' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setLoginType('Admin')}
+                        >
+                            Admin
                         </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {loginMethod === 'phone' ? 'رقم الهاتف' : 'كود الطالب'}
+                                {loginType === 'Admin' ? 'البريد الإلكتروني' : 'رقم الهاتف أو الكود'}
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    {loginMethod === 'phone' ? (
-                                        <Phone className="h-5 w-5 text-gray-400" />
-                                    ) : (
+                                    {loginType === 'Admin' ? (
                                         <User className="h-5 w-5 text-gray-400" />
+                                    ) : (
+                                        <Phone className="h-5 w-5 text-gray-400" />
                                     )}
                                 </div>
                                 <Input
-                                    type={loginMethod === 'phone' ? 'tel' : 'text'}
+                                    type={loginType === 'Admin' ? 'text' : 'text'}
                                     required
                                     className="pr-10 py-3 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                                    placeholder={loginMethod === 'phone' ? '01xxxxxxxxx' : 'أدخل الكود الخاص بك'}
+                                    placeholder={loginType === 'Admin' ? 'email' : 'رقم الهاتف أو الكود'}
                                     value={identifier}
                                     onChange={(e) => setIdentifier(e.target.value)}
                                 />

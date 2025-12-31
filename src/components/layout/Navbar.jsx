@@ -67,7 +67,7 @@ export default function Navbar() {
                                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white shadow-md">
                                     <User size={16} strokeWidth={2.5} />
                                 </div>
-                                <span className="hidden lg:inline font-bold text-sm">{user.name}</span>
+                                <span className="hidden lg:inline font-bold text-sm">{user.fullName || user.name || 'طالب'}</span>
                             </div>
 
                             <Link to="/dashboard">
@@ -160,7 +160,7 @@ export default function Navbar() {
                                         <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white">
                                             <User size={16} />
                                         </div>
-                                        <span className="font-bold">{user.name}</span>
+                                        <span className="font-bold">{user.fullName || user.name || 'طالب'}</span>
                                     </div>
                                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                                         <Button variant="ghost" className="w-full text-gray-600 hover:text-primary hover:bg-primary/10 justify-start font-bold">لوحة التحكم</Button>

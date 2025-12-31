@@ -8,7 +8,10 @@ import { Card, CardContent } from '../../components/ui/Card';
 export default function StudentDashboard() {
     const { user } = useAuth();
     const { grades } = useData();
-    const userGrade = grades.find(g => g.id === user.grade);
+    // Handle both API response structure (fullName, gradeId) and local structure (name, grade)
+    const userName = user?.fullName || user?.name || 'طالب';
+    const userGradeId = user?.gradeId || user?.grade;
+    const userGrade = grades.find(g => g.id === userGradeId);
 
     return (
         <div className="flex min-h-screen bg-light font-sans">
@@ -16,8 +19,8 @@ export default function StudentDashboard() {
             <main className="flex-1 p-8 overflow-y-auto">
                 <header className="flex justify-between items-center mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-dark mb-2">مرحباً، {user.name} 👋</h1>
-                        <p className="text-gray-600">أنت الآن في: <span className="font-bold text-primary">{userGrade?.title}</span></p>
+                        <h1 className="text-3xl font-bold text-dark mb-2">مرحباً، {userName} 👋</h1>
+                        <p className="text-gray-600">أنت الآن في: <span className="font-bold text-primary">{userGrade?.title || 'غير محدد'}</span></p>
                     </div>
                 </header>
 
@@ -49,7 +52,7 @@ export default function StudentDashboard() {
                     المحتوى الدراسي
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Link to={`/grade/${user.grade}`} className="group">
+                    <Link to={`/grade/${userGradeId || 1}`} className="group">
                         <Card className="h-full hover:shadow-xl transition-all border-none shadow-md bg-white overflow-hidden relative">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
                             <CardContent className="p-8 flex flex-col items-center text-center relative z-10">
