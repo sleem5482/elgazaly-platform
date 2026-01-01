@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmToast from '../layout/confirmToast';
 
 const toastTypes = {
     success: {
@@ -72,17 +73,39 @@ export default function Toast({ toast, onClose }) {
     );
 }
 
-export function ToastContainer({ toasts, onClose }) {
+export function ToastContainer({ toasts, onClose, onConfirm }) {
+    const regularToasts = toasts.filter(t => t.type !== 'confirm');
+    const confirmToasts = toasts.filter(t => t.type === 'confirm');
+
     return (
-        <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
+        <>
+            {/* Regular Toasts (Top Right) */}
+            <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
+                <AnimatePresence>
+                    {regularToasts.map((toast) => (
+                        <div key={toast.id} className="pointer-events-auto">
+                            <Toast toast={toast} onClose={onClose} />
+                        </div>
+                    ))}
+                </AnimatePresence>
+            </div>
+
+            {/* Confirm Toasts (Centered Overlay) */}
             <AnimatePresence>
-                {toasts.map((toast) => (
-                    <div key={toast.id} className="pointer-events-auto">
-                        <Toast toast={toast} onClose={onClose} />
+                {confirmToasts.length > 0 && (
+                    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                        {confirmToasts.map((toast) => (
+                            <div key={toast.id} className="pointer-events-auto">
+                                <ConfirmToast
+                                    toast={toast}
+                                    onConfirm={(id, result) => onConfirm(id, result)}
+                                    onCancel={(id) => onConfirm(id, false)}
+                                />
+                            </div>
+                        ))}
                     </div>
-                ))}
+                )}
             </AnimatePresence>
-        </div>
+        </>
     );
 }
-

@@ -5,6 +5,8 @@ const ToastContext = createContext();
 
 export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([]);
+    const [confirmations, setConfirmations] = useState([]);
+
 
     const showToast = useCallback((message, type = 'info', duration = 3000) => {
         const id = Date.now() + Math.random();
@@ -35,10 +37,32 @@ export function ToastProvider({ children }) {
         return showToast(message, 'info', duration);
     }, [showToast]);
 
+    const confirm = useCallback((message) => {
+        return new Promise((resolve) => {
+            const id = Date.now() + Math.random();
+            const newToast = { id, message, type: 'confirm' };
+            setToasts(prev => [...prev, newToast]);
+            setConfirmations(prev => [...prev, { id, resolve }]);
+        });
+    }, []);
+
+    const handleConfirm = useCallback((id, result) => {
+        const confirmation = confirmations.find(c => c.id === id);
+        if (confirmation) {
+            confirmation.resolve(result);
+            setConfirmations(prev => prev.filter(c => c.id !== id));
+            removeToast(id);
+        }
+    }, [confirmations, removeToast]);
+
     return (
-        <ToastContext.Provider value={{ success, error, warning, info, showToast }}>
+        <ToastContext.Provider value={{ success, error, warning, info, showToast, confirm }}>
             {children}
-            <ToastContainer toasts={toasts} onClose={removeToast} />
+            <ToastContainer 
+                toasts={toasts} 
+                onClose={removeToast}
+                onConfirm={handleConfirm}
+            />
         </ToastContext.Provider>
     );
 }

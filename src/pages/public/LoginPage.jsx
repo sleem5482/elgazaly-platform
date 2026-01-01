@@ -76,7 +76,7 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {loginType === 'Admin' ? 'البريد الإلكتروني' : 'رقم الهاتف أو الكود'}
+                                {loginType === 'Admin' ? 'البريد الإلكتروني':loginType === 'Center' ? ' الكود' : 'رقم الهاتف'}
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

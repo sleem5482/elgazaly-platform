@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
-import { API_ENDPOINTS } from '../../config/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../../config/api';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { Plus, Edit, Trash2, Search, UserPlus, CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, UserPlus, CheckCircle, XCircle, Loader2, Mail, AlertCircle } from 'lucide-react';
+import { ToastContainer } from '../../components/ui/Toast';
 
 export default function AdminUsers() {
     const { grades } = useData();
-    const { success, error: showError } = useToast();
+    const { success, error: showError, confirm } = useToast();
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all'); // 'all', 'center', 'online'
     const [isAdding, setIsAdding] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [viewingUser, setViewingUser] = useState(null);
@@ -62,11 +64,19 @@ export default function AdminUsers() {
         fetchStudents();
     }, []);
 
-    const filteredStudents = students.filter(student =>
-        (student.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (student.phoneNumber || '').includes(searchTerm) ||
-        (student.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStudents = students.filter(student => {
+        const matchesSearch = (student.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (student.phoneNumber || '').includes(searchTerm) ||
+            (student.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesType = filterType === 'all' 
+            ? true 
+            : filterType === 'center' 
+                ? student.studentType === 1 
+                : student.studentType === 2;
+
+        return matchesSearch && matchesType;
+    });
 
     const handleCreateStudent = async () => {
         if (!newUser.fullName || !newUser.phoneNumber || !newUser.password || !newUser.email) {
@@ -170,7 +180,7 @@ export default function AdminUsers() {
                     const errorJson = JSON.parse(errorText);
                     errorMessage = errorJson.message || errorJson.error || errorMessage;
                 } catch (e) {
-                    errorMessage = errorText || errorMessage;
+                    errorMessage = errorText || errorMessage||e.message;
                 }
                 throw new Error(errorMessage);
             }
@@ -200,10 +210,11 @@ export default function AdminUsers() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
+        const isConfirmed = await confirm('هل أنت متأكد من حذف هذا الطالب؟');
+        if (!isConfirmed) {
             return;
         }
-
+        
         try {
             setError('');
             const url = API_ENDPOINTS.ADMIN.STUDENT_BY_ID(id);
@@ -393,15 +404,28 @@ export default function AdminUsers() {
                     </div>
                 )}
 
-                {/* Search */}
-                <div className="mb-6 relative max-w-md">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                    <Input
-                        placeholder="بحث بالاسم أو رقم الهاتف أو البريد..."
-                        className="pr-10"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    {/* Search */}
+                    <div className="relative flex-1">
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Input
+                            placeholder="بحث بالاسم أو رقم الهاتف أو البريد..."
+                            className="pr-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    
+                    {/* Filter */}
+                    <select
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                    >
+                        <option value="all">كل الطلاب</option>
+                        <option value="center">طلاب السنتر</option>
+                        <option value="online">طلاب الأونلاين</option>
+                    </select>
                 </div>
 
                 {/* Add/Edit Form */}
@@ -480,27 +504,102 @@ export default function AdminUsers() {
                     </Card>
                 )}
 
-                {/* List */}
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                {/* View: User Cards (Mobile) */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {filteredStudents.map(student => (
+                        <Card key={student.id} className="border border-gray-100 shadow-sm relative overflow-hidden">
+                            <div className={`absolute top-0 right-0 w-2 h-full ${student.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                            <CardContent className="p-4 pr-6">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 className="font-bold text-lg text-secondary">{student.fullName || 'غير محدد'}</h3>
+                                        <p className="text-sm text-gray-500">{student.phoneNumber || 'غير محدد'}</p>
+                                    </div>
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                        student.studentType === 1 
+                                            ? 'bg-purple-100 text-purple-700' 
+                                            : 'bg-blue-100 text-blue-700'
+                                    }`}>
+                                        {student.studentType === 1 ? 'Center' : 'Online'}
+                                    </span>
+                                </div>
+                                
+                                <div className="space-y-2 text-sm text-gray-600 mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Mail size={16} className="text-gray-400" />
+                                        <span>{student.email || '-'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle size={16} className="text-gray-400" />
+                                        <span>{student.gradeName || grades.find(g => g.id === student.gradeId)?.title || 'غير محدد'}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                                    <button
+                                        onClick={() => handleToggleActive(student.id, student.isActive)}
+                                        className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                                            student.isActive 
+                                                ? 'bg-green-100 text-green-700' 
+                                                : 'bg-red-100 text-red-700'
+                                        }`}
+                                    >
+                                        {student.isActive ? 'نشط' : 'غير نشط'}
+                                    </button>
+                                    
+                                    <div className="flex gap-1">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 bg-green-50" onClick={() => setViewingUser(student)}>
+                                            <Search size={16} />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 bg-blue-50" onClick={() => handleEditClick(student)}>
+                                            <Edit size={16} />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 bg-red-50" onClick={() => handleDelete(student.id)}>
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    {filteredStudents.length === 0 && (
+                        <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-dashed border-gray-200">
+                            {searchTerm ? 'لا يوجد طلاب مطابقين للبحث' : 'لا يوجد طلاب'}
+                        </div>
+                    )}
+                </div>
+
+                {/* View: Table (Desktop) */}
+                <div className="hidden md:block bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 overflow-x-auto">
                     <table className="w-full text-right">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="p-4 font-bold text-gray-600">الاسم</th>
-                                <th className="p-4 font-bold text-gray-600">البريد الإلكتروني</th>
-                                <th className="p-4 font-bold text-gray-600">رقم الهاتف</th>
-                                <th className="p-4 font-bold text-gray-600">الصف</th>
-                                <th className="p-4 font-bold text-gray-600">الحالة</th>
-                                <th className="p-4 font-bold text-gray-600">إجراءات</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">الاسم</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">البريد الإلكتروني</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">رقم الهاتف</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">الصف</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">نوع الطالب</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">الحالة</th>
+                                <th className="p-4 font-bold text-gray-600 whitespace-nowrap">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {filteredStudents.map(student => (
                                 <tr key={student.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 font-medium text-secondary">{student.fullName || 'غير محدد'}</td>
-                                    <td className="p-4 text-gray-500">{student.email || '-'}</td>
-                                    <td className="p-4 text-gray-500">{student.phoneNumber || 'غير محدد'}</td>
-                                    <td className="p-4 text-gray-500">{student.gradeName || grades.find(g => g.id === student.gradeId)?.title || 'غير محدد'}</td>
-                                    <td className="p-4">
+                                    <td className="p-4 font-medium text-secondary whitespace-nowrap">{student.fullName || 'غير محدد'}</td>
+                                    <td className="p-4 text-gray-500 whitespace-nowrap">{student.email || '-'}</td>
+                                    <td className="p-4 text-gray-500 whitespace-nowrap">{student.phoneNumber || 'غير محدد'}</td>
+                                    <td className="p-4 text-gray-500 whitespace-nowrap">{student.gradeName || grades.find(g => g.id === student.gradeId)?.title || 'غير محدد'}</td>
+                                    <td className="p-4 whitespace-nowrap">
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                            student.studentType === 1 
+                                                ? 'bg-purple-100 text-purple-700' 
+                                                : 'bg-blue-100 text-blue-700'
+                                        }`}>
+                                            {student.studentType === 1 ? 'Center' : 'Online'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 whitespace-nowrap">
                                         <button
                                             onClick={() => handleToggleActive(student.id, student.isActive)}
                                             className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors ${
@@ -522,7 +621,7 @@ export default function AdminUsers() {
                                             )}
                                         </button>
                                     </td>
-                                    <td className="p-4 flex gap-2">
+                                    <td className="p-4 flex gap-2 whitespace-nowrap">
                                         <Button variant="ghost" size="icon" className="text-green-600 hover:bg-green-50" onClick={() => setViewingUser(student)} title="عرض التفاصيل">
                                             <Search size={18} />
                                         </Button>
