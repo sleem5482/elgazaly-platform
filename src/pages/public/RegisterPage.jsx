@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { useToast } from '../../context/ToastContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { UserPlus, Phone, Lock, User, GraduationCap, ArrowLeft, Mail } from 'lucide-react';
@@ -18,19 +19,18 @@ export default function RegisterPage() {
     });
     const { register } = useAuth();
     const { grades } = useData();
+    const { error: toastError } = useToast();
     const navigate = useNavigate();
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setIsLoading(true);
 
         try {
             // Validate required fields
             if (!formData.name || !formData.phone || !formData.password) {
-                setError('الرجاء ملء جميع الحقول المطلوبة');
+                toastError('الرجاء ملء جميع الحقول المطلوبة');
                 setIsLoading(false);
                 return;
             }
@@ -42,21 +42,21 @@ export default function RegisterPage() {
             
             // Validate grade ID (1 = أولي ثانوي, 2 = تانيه, 3 = تالته)
             if (isNaN(gradeId) || gradeId < 1 || gradeId > 3) {
-                setError('الرجاء اختيار صف دراسي صحيح');
+                toastError('الرجاء اختيار صف دراسي صحيح');
                 setIsLoading(false);
                 return;
             }
 
             // Validate section ID (1 = علمي, 2 = ادبي)
             if (isNaN(sectionId) || sectionId < 1 || sectionId > 2) {
-                setError('الرجاء اختيار شعبة صحيحة');
+                toastError('الرجاء اختيار شعبة صحيحة');
                 setIsLoading(false);
                 return;
             }
 
             // Validate student type (1 = Center, 2 = Online)
             if (isNaN(studentType) || (studentType !== 1 && studentType !== 2)) {
-                setError('الرجاء اختيار نوع طالب صحيح');
+                toastError('الرجاء اختيار نوع طالب صحيح');
                 setIsLoading(false);
                 return;
             }
@@ -75,7 +75,8 @@ export default function RegisterPage() {
             await register(apiData);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.message || 'حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى.');
+            console.log("err", err);
+            toastError(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -246,11 +247,7 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded-lg">
-                                {error}
-                            </div>
-                        )}
+
 
                         <Button
                             type="submit"

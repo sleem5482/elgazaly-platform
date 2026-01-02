@@ -19,8 +19,8 @@ export default function Sidebar() {
         { name: 'الرئيسية', path: '/dashboard', icon: LayoutDashboard },
         { name: 'الكورسات', path: `/grade/${user?.grade}`, icon: BookOpen },
         { name: 'الامتحانات', path: '/exams', icon: GraduationCap },
-        { name: 'الشهادات', path: '/certificates', icon: Award },
-        { name: 'الإعدادات', path: '/settings', icon: Settings },
+        // { name: 'الشهادات', path: '/certificates', icon: Award },
+        // { name: 'الإعدادات', path: '/settings', icon: Settings },
     ];
 
     const SidebarContent = () => (

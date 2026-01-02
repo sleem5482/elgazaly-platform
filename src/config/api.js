@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
         LOGIN: `${API_BASE_URL}/Auth/login`,
         REGISTER: `${API_BASE_URL}/Auth/register`,
         FORGOT_PASSWORD: `${API_BASE_URL}/Auth/forgot-password`,
+        RESET_PASSWORD: `${API_BASE_URL}/Auth/reset-password`,
     },
     ADMIN: {
         STUDENTS: `${API_BASE_URL}/Admin/students`,
@@ -17,6 +18,23 @@ export const API_ENDPOINTS = {
         GRADE_BY_ID: (id) => `${API_BASE_URL}/Admin/grades/${id}`,
         SECTIONS: `${API_BASE_URL}/Admin/sections`,
         SECTION_BY_ID: (id) => `${API_BASE_URL}/Admin/sections/${id}`,
+        // Courses
+        COURSES: `${API_BASE_URL}/Admin/courses`,
+        COURSE_BY_ID: (id) => `${API_BASE_URL}/Admin/courses/${id}`,
+        COURSE_TOGGLE_ACTIVE: (id) => `${API_BASE_URL}/Admin/courses/${id}/toggle-active`,
+        // Course Months
+        COURSE_MONTHS: (courseId) => `${API_BASE_URL}/Admin/courses/${courseId}/months`,
+        COURSE_MONTHS_BY_ID: (courseId, id) => `${API_BASE_URL}/Admin/courses/${courseId}/months/${id}`,
+        // Course Weeks
+        COURSE_WEEKS: (monthId) => `${API_BASE_URL}/Admin/course-months/${monthId}/weeks`,
+        COURSE_WEEKS_BY_ID: (monthId, id) => `${API_BASE_URL}/Admin/course-months/${monthId}/weeks/${id}`, // Note: URL might be /Admin/course-months/MID/weeks/WID or just /Admin/course-months/weeks/WID? Checking user request...
+        // User request says DELETE https://elghazaly.runasp.net//api/Admin/course-months/2/weeks/1 - looks like standard nested or flat? 
+        // Actually: PUT https://elghazaly.runasp.net/api/Admin/course-months/2/weeks/1 
+        // So yes, it includes the parent ID in the path.
+        
+        // Videos
+        VIDEOS: (weekId) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos`,
+        VIDEO_BY_ID: (weekId, id) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos/${id}`,
     }
 };
 

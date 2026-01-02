@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { User, Phone, Lock, ArrowLeft } from 'lucide-react';
@@ -11,12 +12,11 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
-    const [error, setError] = useState('');
+    const { error: toastError } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setIsLoading(true);
 
         try {
@@ -29,10 +29,20 @@ export default function LoginPage() {
                     navigate('/dashboard');
                 }
             } else {
-                setError('بيانات الدخول غير صحيحة');
+                const msg = 'بيانات الدخول غير صحيحة';
+                toastError(msg);
             }
         } catch (err) {
-            setError(err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.');
+            let msg = err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.';
+            
+            // Translate common English API errors
+            if (msg.toLowerCase().includes('user not found') || msg.toLowerCase().includes('invalid')) {
+                msg = 'بيانات الدخول غير صحيحة';
+            } else if (msg.toLowerCase().includes('password')) {
+                msg = 'كلمة المرور غير صحيحة';
+            }
+            
+            toastError(msg);
         } finally {
             setIsLoading(false);
         }
@@ -119,11 +129,7 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="text-red-500 text-sm text-center bg-red-50 p-3 rounded-lg">
-                                {error}
-                            </div>
-                        )}
+
 
                         <Button
                             type="submit"

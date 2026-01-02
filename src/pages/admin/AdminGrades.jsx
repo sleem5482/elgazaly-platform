@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
-import { API_ENDPOINTS } from '../../config/api';
+import { adminService } from '../../services/adminService';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -8,7 +8,7 @@ import Input from '../../components/ui/Input';
 import { Plus, Edit, Trash2, Search, Loader2, GraduationCap } from 'lucide-react';
 
 export default function AdminGrades() {
-    const { success, error: showError } = useToast();
+    const toast = useToast();
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -23,23 +23,12 @@ export default function AdminGrades() {
         try {
             setLoading(true);
             setError('');
-            const response = await fetch(API_ENDPOINTS.ADMIN.GRADES, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('فشل تحميل قائمة الصفوف');
-            }
-
-            const data = await response.json();
+            const data = await adminService.getGrades();
             setGrades(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Error fetching grades:', err);
             setError(err.message || 'حدث خطأ أثناء تحميل قائمة الصفوف');
+            toast.error('فشل تحميل قائمة الصفوف');
         } finally {
             setLoading(false);
         }
@@ -57,48 +46,26 @@ export default function AdminGrades() {
         if (!newGrade.name || !newGrade.name.trim()) {
             const errorMsg = 'الرجاء إدخال اسم الصف';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.warning(errorMsg);
             return;
         }
 
         try {
             setSaving(true);
             setError('');
-            const payload = {
-                name: newGrade.name.trim()
-            };
-
-            const response = await fetch(API_ENDPOINTS.ADMIN.GRADES, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'فشل إنشاء الصف';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
+            
+            await adminService.createGrade({ name: newGrade.name.trim() });
 
             // Refresh the list
             await fetchGrades();
             setIsAdding(false);
             setNewGrade({ name: '' });
-            success('تم إنشاء الصف بنجاح! 🎉');
+            toast.success('تم إنشاء الصف بنجاح! 🎉');
         } catch (err) {
             console.error('Error creating grade:', err);
             const errorMsg = err.message || 'حدث خطأ أثناء إنشاء الصف';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setSaving(false);
         }
@@ -108,95 +75,49 @@ export default function AdminGrades() {
         if (!newGrade.id || !newGrade.name || !newGrade.name.trim()) {
             const errorMsg = 'الرجاء إدخال اسم الصف';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.warning(errorMsg);
             return;
         }
 
         try {
             setSaving(true);
             setError('');
-            const payload = {
-                name: newGrade.name.trim()
-            };
-
-            const response = await fetch(API_ENDPOINTS.ADMIN.GRADE_BY_ID(newGrade.id), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'فشل تحديث بيانات الصف';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
+            
+            await adminService.updateGrade(newGrade.id, { id: newGrade.id, name: newGrade.name.trim() });
 
             // Refresh the list
             await fetchGrades();
             setIsAdding(false);
             setIsEditing(false);
             setNewGrade({ name: '' });
-            success('تم تحديث بيانات الصف بنجاح! ✨');
+            toast.success('تم تحديث بيانات الصف بنجاح! ✨');
         } catch (err) {
             console.error('Error updating grade:', err);
             const errorMsg = err.message || 'حدث خطأ أثناء تحديث بيانات الصف';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('هل أنت متأكد من حذف هذا الصف؟')) {
+        if (!await toast.confirm('هل أنت متأكد من حذف هذا الصف؟')) {
             return;
         }
 
         try {
             setError('');
-            const url = API_ENDPOINTS.ADMIN.GRADE_BY_ID(id);
-            console.log('Deleting grade:', { id, url });
+            await adminService.deleteGrade(id);
             
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            console.log('Delete response:', { status: response.status, statusText: response.statusText });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Delete error response:', errorText);
-                let errorMessage = 'فشل حذف الصف';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
-
             // Refresh the list
             await fetchGrades();
-            success('تم حذف الصف بنجاح! 🗑️');
+            toast.success('تم حذف الصف بنجاح! 🗑️');
         } catch (err) {
             console.error('Error deleting grade:', err);
             const errorMsg = err.message || 'حدث خطأ أثناء حذف الصف';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.error(errorMsg);
         }
     };
 

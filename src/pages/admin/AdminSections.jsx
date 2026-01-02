@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
-import { API_ENDPOINTS } from '../../config/api';
+import { adminService } from '../../services/adminService';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -8,7 +8,7 @@ import Input from '../../components/ui/Input';
 import { Plus, Trash2, Search, Loader2, BookOpen } from 'lucide-react';
 
 export default function AdminSections() {
-    const { success, error: showError } = useToast();
+    const toast = useToast();
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,23 +22,12 @@ export default function AdminSections() {
         try {
             setLoading(true);
             setError('');
-            const response = await fetch(API_ENDPOINTS.ADMIN.SECTIONS, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('فشل تحميل قائمة الشعب');
-            }
-
-            const data = await response.json();
+            const data = await adminService.getSections();
             setSections(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Error fetching sections:', err);
             setError(err.message || 'حدث خطأ أثناء تحميل قائمة الشعب');
+            toast.error('فشل تحميل قائمة الشعب');
         } finally {
             setLoading(false);
         }
@@ -56,94 +45,48 @@ export default function AdminSections() {
         if (!newSection.name || !newSection.name.trim()) {
             const errorMsg = 'الرجاء إدخال اسم الشعبة';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.showToast(errorMsg, 'error');
             return;
         }
 
         try {
             setSaving(true);
             setError('');
-            const payload = {
-                name: newSection.name.trim()
-            };
-
-            const response = await fetch(API_ENDPOINTS.ADMIN.SECTIONS, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'فشل إنشاء الشعبة';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
+            
+            await adminService.createSection({ name: newSection.name.trim() });
 
             // Refresh the list
             await fetchSections();
             setIsAdding(false);
             setNewSection({ name: '' });
-            success('تم إنشاء الشعبة بنجاح! 🎉');
+            toast.success('تم إنشاء الشعبة بنجاح! 🎉');
         } catch (err) {
             console.error('Error creating section:', err);
             const errorMsg = err.message || 'حدث خطأ أثناء إنشاء الشعبة';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.error(errorMsg);
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('هل أنت متأكد من حذف هذه الشعبة؟')) {
+        if (!await toast.confirm('هل أنت متأكد من حذف هذه الشعبة؟')) {
             return;
         }
 
         try {
             setError('');
-            const url = API_ENDPOINTS.ADMIN.SECTION_BY_ID(id);
-            console.log('Deleting section:', { id, url });
+            await adminService.deleteSection(id);
             
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            console.log('Delete response:', { status: response.status, statusText: response.statusText });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Delete error response:', errorText);
-                let errorMessage = 'فشل حذف الشعبة';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
-
             // Refresh the list
             await fetchSections();
-            success('تم حذف الشعبة بنجاح! 🗑️');
+            toast.success('تم حذف الشعبة بنجاح! 🗑️');
         } catch (err) {
             console.error('Error deleting section:', err);
             const errorMsg = err.message || 'حدث خطأ أثناء حذف الشعبة';
             setError(errorMsg);
-            showError(errorMsg);
+            toast.error(errorMsg);
         }
     };
 

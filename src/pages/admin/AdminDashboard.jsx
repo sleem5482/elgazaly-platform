@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { adminService } from '../../services/adminService';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Users, BookOpen, DollarSign, TrendingUp } from 'lucide-react';
@@ -13,6 +15,44 @@ const data = [
 ];
 
 export default function AdminDashboard() {
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        students: 0,
+        courses: 0
+    });
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [studentsData, coursesData] = await Promise.all([
+                    adminService.getAllStudents(),
+                    adminService.getAllCourses()
+                ]);
+
+                // Filter students (exclude admins if needed, following AdminUsers logic)
+                const validStudents = Array.isArray(studentsData) 
+                    ? studentsData.filter(s => s.studentType !== 0) 
+                    : [];
+
+                // Active courses
+                const activeCourses = Array.isArray(coursesData) 
+                    ? coursesData.filter(c => c.isActive) 
+                    : [];
+
+                setStats({
+                    students: validStudents.length,
+                    courses: activeCourses.length
+                });
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
     return (
         <div className="flex min-h-screen bg-gray-100">
             <AdminSidebar />
@@ -24,11 +64,13 @@ export default function AdminDashboard() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    {[
-                        { label: 'إجمالي الطلاب', value: '1,234', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-                        { label: 'الكورسات النشطة', value: '12', icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100' },
-                        { label: 'الإيرادات', value: '50,000 ج.م', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
-                        { label: 'نسبة النمو', value: '+15%', icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100' },
+                    {loading ? (
+                        <div className="col-span-full text-center py-8 text-gray-500">جاري تحميل الإحصائيات...</div>
+                    ) : [
+                        { label: 'إجمالي الطلاب', value: stats.students, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+                        { label: 'الكورسات النشطة', value: stats.courses, icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-100' },
+                        // { label: 'الإيرادات', value: '50,000 ج.م', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
+                        // { label: 'نسبة النمو', value: '+15%', icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100' },
                     ].map((stat, idx) => (
                         <Card key={idx} className="border-none shadow-sm">
                             <CardContent className="flex items-center gap-4 p-6">

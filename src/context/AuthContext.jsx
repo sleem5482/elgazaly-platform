@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (identifier, password, loginType) => {
+        let responseText=""
         try {
             // Prepare payload according to API requirements
             // API expects: loginType (Online, Center, Admin), identifier (phone number, code, or email), password
@@ -176,6 +177,9 @@ export function AuthProvider({ children }) {
 
                     // Handle different error formats
                     errorMessage = errorJson.message || errorJson.error || errorJson.title || errorJson.detail || errorMessage;
+                    if (errorMessage.toLowerCase().includes('email')) {
+                        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل، الرجاء استخدام بريد آخر أو تسجيل الدخول.';
+                    }
                     console.error('Error Message:', errorMessage);
                     throw new Error(errorMessage);
                 } catch (parseErr) {
@@ -242,6 +246,7 @@ export function AuthProvider({ children }) {
             
             throw err;
         }
+        return responseText;
     };
 
     const forgotPassword = async (identifier) => {
@@ -283,13 +288,53 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const resetPassword = async (email, token, newPassword) => {
+        try {
+            console.group('🔐 Reset Password Request');
+            console.log('URL:', API_ENDPOINTS.AUTH.RESET_PASSWORD);
+            console.log('Email:', email);
+            console.log('Token Present:', !!token);
+            console.groupEnd();
+
+            const response = await fetch(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ email, token, newPassword }),
+            });
+
+            const responseText = await response.text();
+
+            console.group('🔐 Reset Password Response');
+            console.log('Status:', response.status);
+            console.log('Response:', responseText);
+            console.groupEnd();
+
+            if (!response.ok) {
+                try {
+                    const errorJson = JSON.parse(responseText);
+                    throw new Error(errorJson.message || errorJson.error || 'فشلت عملية تغيير كلمة المرور');
+                } catch (e) {
+                    throw new Error(responseText || 'فشلت عملية تغيير كلمة المرور');
+                }
+            }
+            
+            return true;
+        } catch (err) {
+            console.error("❌ Reset Password Error:", err);
+            throw err;
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('currentUser');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, forgotPassword, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, forgotPassword, resetPassword, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
