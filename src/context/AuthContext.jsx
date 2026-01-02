@@ -73,6 +73,11 @@ export function AuthProvider({ children }) {
                 try {
                     const errorJson = JSON.parse(responseText);
                     
+                    // If errorJson is just a string, use it directly
+                    if (typeof errorJson === 'string') {
+                        throw new Error(errorJson);
+                    }
+
                     // Handle ASP.NET Core validation errors dictionary
                     if (errorJson.errors) {
                         const messages = Object.values(errorJson.errors).flat().join(', ');
@@ -116,7 +121,7 @@ export function AuthProvider({ children }) {
             };
             setUser(normalizedUser);
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
-            return true;
+            return data;
         } catch (err) {
             console.error("❌ Login Error:", err);
             
@@ -125,7 +130,6 @@ export function AuthProvider({ children }) {
                 throw new Error('فشل الاتصال بالخادم. يرجى التحقق من الاتصال بالإنترنت.');
             }
             
-            // Re-throw so the UI can display the specific message
             throw err;
         }
     };
@@ -164,6 +168,11 @@ export function AuthProvider({ children }) {
                     // Try to parse as JSON
                     const errorJson = JSON.parse(responseText);
                     console.error('❌ Error JSON:', errorJson);
+
+                    // If errorJson is just a string (e.g. "Email already exists"), use it directly
+                    if (typeof errorJson === 'string') {
+                        throw new Error(errorJson);
+                    }
 
                     // Handle ASP.NET Core validation errors dictionary
                     if (errorJson.errors) {
@@ -235,7 +244,7 @@ export function AuthProvider({ children }) {
             setUser(normalizedUser);
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
             setUsers(prev => [...prev, normalizedUser]);
-            return true;
+            return data;
         } catch (err) {
             console.error("❌ Registration Error:", err);
             

@@ -12,7 +12,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
-    const { error: toastError } = useToast();
+    const { error: toastError, success: toastSuccess } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -20,29 +20,27 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            const success = await login(identifier, password, loginType);
-            if (success) {
+            const data = await login(identifier, password, loginType);
+            if (data) {
+                if (data.message) {
+                    toastSuccess(data.message);
+                }
+                
                 // Navigate based on login type
                 if (loginType === 'Admin') {
                     navigate('/admin');
                 } else {
                     navigate('/dashboard');
                 }
-            } else {
-                const msg = 'بيانات الدخول غير صحيحة';
-                toastError(msg);
             }
         } catch (err) {
-            let msg = err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.';
-            
-            // Translate common English API errors
-            if (msg.toLowerCase().includes('user not found') || msg.toLowerCase().includes('invalid')) {
-                msg = 'بيانات الدخول غير صحيحة';
-            } else if (msg.toLowerCase().includes('password')) {
-                msg = 'كلمة المرور غير صحيحة';
+            const msg = err.message || 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.';
+            // Customize error message for login failures
+            if (msg.toLowerCase().includes('failed') || msg.toLowerCase().includes('error') || msg.toLowerCase().includes('400') || msg.toLowerCase().includes('404')) {
+                 toastError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+            } else {
+                 toastError('البريد الإلكتروني أو كلمة المرور غير صحيحة'); // Force this message for all login errors as requested "show in login message with arabic said wrong email or password"
             }
-            
-            toastError(msg);
         } finally {
             setIsLoading(false);
         }

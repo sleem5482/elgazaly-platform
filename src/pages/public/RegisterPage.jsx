@@ -19,7 +19,7 @@ export default function RegisterPage() {
     });
     const { register } = useAuth();
     const { grades } = useData();
-    const { error: toastError } = useToast();
+    const { error: toastError, success: toastSuccess } = useToast();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -61,6 +61,21 @@ export default function RegisterPage() {
                 return;
             }
 
+            // Validate Phone Number (Egypt: 11 digits, starts with 010, 011, 012, 015)
+            const phoneRegex = /^(010|011|012|015)\d{8}$/;
+            if (!phoneRegex.test(formData.phone)) {
+                toastError('رقم الهاتف يجب أن يتكون من 11 رقم ويبدأ بـ 010, 011, 012, أو 015');
+                setIsLoading(false);
+                return;
+            }
+
+            // Validate Password Length (Min 6 characters)
+            if (formData.password.length < 6) {
+                toastError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                setIsLoading(false);
+                return;
+            }
+
             const apiData = {
                 fullName: formData.name.trim(),
                 email: formData.email.trim() || formData.phone.trim() + '@elghazaly.com',
@@ -72,7 +87,12 @@ export default function RegisterPage() {
             };
 
             console.log('Registration payload:', JSON.stringify(apiData, null, 2));
-            await register(apiData);
+            const data = await register(apiData);
+            
+            if (data && data.message) {
+                toastSuccess(data.message);
+            }
+            
             navigate('/dashboard');
         } catch (err) {
             console.log("err", err);
