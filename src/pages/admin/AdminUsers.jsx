@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
-import { API_ENDPOINTS, API_BASE_URL } from '../../config/api';
+import { adminService } from '../../services/adminService';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -16,6 +16,7 @@ export default function AdminUsers() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all', 'center', 'online'
+    const [filterGrade, setFilterGrade] = useState('all');
     const [isAdding, setIsAdding] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [viewingUser, setViewingUser] = useState(null);
@@ -36,19 +37,8 @@ export default function AdminUsers() {
         try {
             setLoading(true);
             setError('');
-            const response = await fetch(API_ENDPOINTS.ADMIN.STUDENTS, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('فشل تحميل قائمة الطلاب');
-            }
-
-            const data = await response.json();
+            const data = await adminService.getAllStudents();
+            
             // Filter out admin users (studentType === 0)
             const studentList = Array.isArray(data) ? data.filter(s => s.studentType !== 0) : [];
             setStudents(studentList);
@@ -75,7 +65,11 @@ export default function AdminUsers() {
                 ? student.studentType === 1 
                 : student.studentType === 2;
 
-        return matchesSearch && matchesType;
+        const matchesGrade = filterGrade === 'all'
+            ? true
+            : student.gradeId === parseInt(filterGrade);
+
+        return matchesSearch && matchesType && matchesGrade;
     });
 
     const handleCreateStudent = async () => {
@@ -99,26 +93,7 @@ export default function AdminUsers() {
                 studentType: parseInt(newUser.studentType)
             };
 
-            const response = await fetch(API_ENDPOINTS.ADMIN.STUDENTS, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'فشل إنشاء الطالب';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
+            await adminService.createStudent(payload);
 
             // Refresh the list
             await fetchStudents();
@@ -164,26 +139,7 @@ export default function AdminUsers() {
                 isActive: newUser.isActive !== undefined ? newUser.isActive : true
             };
 
-            const response = await fetch(API_ENDPOINTS.ADMIN.STUDENT_BY_ID(newUser.id), {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = 'فشل تحديث بيانات الطالب';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage||e.message;
-                }
-                throw new Error(errorMessage);
-            }
+            await adminService.updateStudent(newUser.id, payload);
 
             // Refresh the list
             await fetchStudents();
@@ -217,31 +173,9 @@ export default function AdminUsers() {
         
         try {
             setError('');
-            const url = API_ENDPOINTS.ADMIN.STUDENT_BY_ID(id);
-            console.log('Deleting student:', { id, url });
+            console.log('Deleting student:', { id });
             
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            console.log('Delete response:', { status: response.status, statusText: response.statusText });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Delete error response:', errorText);
-                let errorMessage = 'فشل حذف الطالب';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
+            await adminService.deleteStudent(id);
 
             // Refresh the list
             await fetchStudents();
@@ -257,17 +191,7 @@ export default function AdminUsers() {
     const handleToggleActive = async (id, currentStatus) => {
         try {
             setError('');
-            const response = await fetch(API_ENDPOINTS.ADMIN.TOGGLE_ACTIVE(id), {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('فشل تغيير حالة الطالب');
-            }
+            await adminService.toggleStudentActive(id);
 
             // Refresh the list
             await fetchStudents();
@@ -425,6 +349,17 @@ export default function AdminUsers() {
                         <option value="all">كل الطلاب</option>
                         <option value="center">طلاب السنتر</option>
                         <option value="online">طلاب الأونلاين</option>
+                    </select>
+
+                    <select
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+                        value={filterGrade}
+                        onChange={(e) => setFilterGrade(e.target.value)}
+                    >
+                         <option value="all">كل الصفوف</option>
+                        {grades.map(g => (
+                            <option key={g.id} value={g.id}>{g.title}</option>
+                        ))}
                     </select>
                 </div>
 

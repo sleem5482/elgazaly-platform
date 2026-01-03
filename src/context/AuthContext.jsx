@@ -119,6 +119,12 @@ export function AuthProvider({ children }) {
                 phoneNumber: data.phoneNumber || data.phone,
                 role: userRole, // Set role based on login type or API response
             };
+            // Save token to localStorage for adminService usage
+            const token = data.token || data.accessToken || data.jwt;
+            if (token) {
+                localStorage.setItem('token', token);
+            }
+
             setUser(normalizedUser);
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
             return data;
@@ -241,6 +247,12 @@ export function AuthProvider({ children }) {
                 phoneNumber: data.phoneNumber || data.phone,
                 role: userRole, // Set role based on studentType
             };
+            // Save token to localStorage for adminService usage
+            const token = data.token || data.accessToken || data.jwt;
+            if (token) {
+                localStorage.setItem('token', token);
+            }
+
             setUser(normalizedUser);
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
             setUsers(prev => [...prev, normalizedUser]);
@@ -340,6 +352,7 @@ export function AuthProvider({ children }) {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
     };
 
     return (

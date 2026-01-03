@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
@@ -20,6 +20,10 @@ export default function ResetPasswordPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        document.title = 'تغيير كلمة المرور | الغزالي';
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -108,6 +112,7 @@ export default function ResetPasswordPage() {
                                         placeholder="••••••••"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
+                                        autoComplete="new-password"
                                     />
                                     <button
                                         type="button"
@@ -132,6 +137,7 @@ export default function ResetPasswordPage() {
                                         placeholder="••••••••"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
+                                        autoComplete="new-password"
                                     />
                                 </div>
                             </div>

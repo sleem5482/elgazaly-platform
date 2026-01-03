@@ -119,10 +119,10 @@ export default function AdminSections() {
                         <h1 className="text-3xl font-bold text-secondary mb-2">إدارة الشعب</h1>
                         <p className="text-gray-500">إضافة وحذف الشعب الدراسية</p>
                     </div>
-                    <Button onClick={() => setIsAdding(true)} className="gap-2 shadow-lg">
+                    {/* <Button onClick={() => setIsAdding(true)} className="gap-2 shadow-lg">
                         <Plus size={20} />
                         إضافة شعبة جديدة
-                    </Button>
+                    </Button> */}
                 </header>
 
                 {error && (
@@ -186,9 +186,9 @@ export default function AdminSections() {
                                         {section.name || 'غير محدد'}
                                     </td>
                                     <td className="p-4 flex gap-2">
-                                        <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(section.id)}>
+                                        {/* <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(section.id)}>
                                             <Trash2 size={18} />
-                                        </Button>
+                                        </Button> */}
                                     </td>
                                 </tr>
                             ))}

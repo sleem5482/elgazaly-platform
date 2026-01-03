@@ -9,14 +9,91 @@ const getAuthHeader = () => {
     };
 };
 
+const handleResponseError = async (response, defaultMessage) => {
+    const errorText = await response.text();
+    let errorMessage = defaultMessage;
+    try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorJson.error || errorMessage;
+    } catch (e) {
+        errorMessage = errorText || errorMessage;
+    }
+    throw new Error(errorMessage);
+};
+
 export const adminService = {
     // --- Students ---
     getAllStudents: async () => {
         const response = await fetch(API_ENDPOINTS.ADMIN.STUDENTS, {
             headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
         });
-        if (!response.ok) throw new Error('Failed to fetch students');
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch students');
         return response.json();
+    },
+
+    createStudent: async (data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.STUDENTS, {
+            method: 'POST',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Failed to create student';
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) { errorMessage = errorText || errorMessage; }
+            throw new Error(errorMessage);
+        }
+        return response.json(); // or true depending on API
+    },
+
+    updateStudent: async (id, data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.STUDENT_BY_ID(id), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Failed to update student';
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) { errorMessage = errorText || errorMessage; }
+            throw new Error(errorMessage);
+        }
+        return response.status !== 204 ? response.json() : true;
+    },
+
+    deleteStudent: async (id) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.STUDENT_BY_ID(id), {
+            method: 'DELETE',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Failed to delete student';
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch (e) { errorMessage = errorText || errorMessage; }
+            throw new Error(errorMessage);
+        }
+        return true;
+    },
+
+    toggleStudentActive: async (id) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.TOGGLE_ACTIVE(id), {
+            method: 'PATCH',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to toggle student status');
+        return true;
     },
 
     // --- Courses ---
@@ -294,6 +371,124 @@ export const adminService = {
             headers: { ...getAuthHeader() } // DELETE usually doesn't have body, but if it did, content-type json
         });
         if (!response.ok) throw new Error('Failed to delete video');
+        return true;
+    },
+
+    // --- Exams ---
+    getExams: async (courseId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_EXAMS(courseId), {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch exams');
+        return response.json();
+    },
+
+    createExam: async (courseId, data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_EXAMS(courseId), {
+            method: 'POST',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to create exam');
+        return response.json();
+    },
+
+    updateExam: async (courseId, examId, data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_EXAM_BY_ID(courseId, examId), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to update exam');
+        return response.status !== 204 ? response.json() : true;
+    },
+
+    getExamById: async (courseId, examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_EXAM_BY_ID(courseId, examId), {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch exam');
+        return response.json();
+    },
+
+    deleteExam: async (courseId, examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_EXAM_BY_ID(courseId, examId), {
+            method: 'DELETE',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to delete exam');
+        return true;
+    },
+
+    getExamResults: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_RESULTS(examId), {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch exam results');
+        return response.json();
+    },
+
+    getExamStats: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_STATS(examId), {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch exam stats');
+        return response.json();
+    },
+
+    openExam: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_OPEN(examId), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to open exam');
+        return true;
+    },
+
+    closeExam: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_CLOSE(examId), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to close exam');
+        return true;
+    },
+
+    // --- Exam Questions ---
+    getQuestions: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_QUESTIONS(examId), {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch questions');
+        return response.json();
+    },
+
+    createQuestion: async (examId, data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_QUESTIONS(examId), {
+            method: 'POST',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to create question');
+        return response.json();
+    },
+
+    updateQuestion: async (examId, questionId, data) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_QUESTION_BY_ID(examId, questionId), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to update question');
+        return response.status !== 204 ? response.json() : true;
+    },
+
+    deleteQuestion: async (examId, questionId) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.EXAM_QUESTION_BY_ID(examId, questionId), {
+            method: 'DELETE',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to delete question');
         return true;
     }
 };

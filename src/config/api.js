@@ -35,6 +35,20 @@ export const API_ENDPOINTS = {
         // Videos
         VIDEOS: (weekId) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos`,
         VIDEO_BY_ID: (weekId, id) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos/${id}`,
+
+        // Exams (Course Context)
+        COURSE_EXAMS: (courseId) => `${API_BASE_URL}/Admin/courses/${courseId}/exams`,
+        COURSE_EXAM_BY_ID: (courseId, examId) => `${API_BASE_URL}/Admin/courses/${courseId}/exams/${examId}`,
+        
+        // Exams (Direct Context - Results/Status)
+        EXAM_RESULTS: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/results`,
+        EXAM_STATS: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/results/stats`,
+        EXAM_OPEN: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/open`,
+        EXAM_CLOSE: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/close`,
+
+        // Exam Questions
+        EXAM_QUESTIONS: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/questions`,
+        EXAM_QUESTION_BY_ID: (examId, questionId) => `${API_BASE_URL}/Admin/Exams/${examId}/questions/${questionId}`,
     }
 };
 
