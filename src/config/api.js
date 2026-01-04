@@ -1,6 +1,7 @@
 // API Configuration
 // Use environment variable for direct API calls (bypassing Netlify proxy)
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://elghazaly.runasp.net/api';
+export const API_BASE_URL = 'https://elghazaly.runasp.net/api';
+export const MEDIA_BASE_URL = 'https://elghazaly.runasp.net';
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -18,6 +19,11 @@ export const API_ENDPOINTS = {
         GRADE_BY_ID: (id) => `${API_BASE_URL}/Admin/grades/${id}`,
         SECTIONS: `${API_BASE_URL}/Admin/sections`,
         SECTION_BY_ID: (id) => `${API_BASE_URL}/Admin/sections/${id}`,
+
+        // Payments
+        PAYMENTS: `${API_BASE_URL}/admin/payments`,
+        PAYMENT_STATUS: (id, status) => `${API_BASE_URL}/admin/payments/${id}/status?status=${status}`,
+
         // Courses
         COURSES: `${API_BASE_URL}/Admin/courses`,
         COURSE_BY_ID: (id) => `${API_BASE_URL}/Admin/courses/${id}`,
@@ -35,6 +41,8 @@ export const API_ENDPOINTS = {
         // Videos
         VIDEOS: (weekId) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos`,
         VIDEO_BY_ID: (weekId, id) => `${API_BASE_URL}/Admin/course-weeks/${weekId}/videos/${id}`,
+        // Video Streaming
+        VIDEO_STREAM: (id) => `${API_BASE_URL}/VideoStreaming/stream/${id}`,
 
         // Exams (Course Context)
         COURSE_EXAMS: (courseId) => `${API_BASE_URL}/Admin/courses/${courseId}/exams`,
@@ -49,6 +57,22 @@ export const API_ENDPOINTS = {
         // Exam Questions
         EXAM_QUESTIONS: (examId) => `${API_BASE_URL}/Admin/Exams/${examId}/questions`,
         EXAM_QUESTION_BY_ID: (examId, questionId) => `${API_BASE_URL}/Admin/Exams/${examId}/questions/${questionId}`,
+    },
+    STUDENT: {
+        // Updated based on user request
+        COURSES: {
+             MY_COURSES: `${API_BASE_URL}/student/courses/GetAllCourseForStudent`,
+             ACCESS: (id) => `${API_BASE_URL}/student/courses/${id}/access`
+        },
+        PAYMENTS: {
+            AVAILABLE_MONTHS: (courseId) => `${API_BASE_URL}/student/payments/available-months/${courseId}`,
+            SUBSCRIBE: `${API_BASE_URL}/student/payments/subscribe`
+        },
+        EXAMS: {
+            AVAILABLE: `${API_BASE_URL}/student/exams/available`,
+            START: (id) => `${API_BASE_URL}/student/exams/start/${id}`,
+            SUBMIT: `${API_BASE_URL}/student/exams/submit`
+        }
     }
 };
 

@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import { PlayCircle, FileText, CheckCircle, ChevronLeft, ChevronRight, Lock, AlertCircle, Star } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import ExamRunner from '../../components/student/ExamRunner';
+import { studentService } from '../../services/studentService';
 
 export default function LessonPage() {
     const { lessonId } = useParams();
@@ -64,7 +65,7 @@ export default function LessonPage() {
 
                                     {activeTab === 'video' ? (
                                         <iframe
-                                            src={lesson.videoUrl}
+                                            src={studentService.getVideoStreamUrl(lesson.id)}
                                             title={lesson.title}
                                             className="w-full h-full"
                                             allowFullScreen

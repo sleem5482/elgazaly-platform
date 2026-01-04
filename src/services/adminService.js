@@ -22,6 +22,24 @@ const handleResponseError = async (response, defaultMessage) => {
 };
 
 export const adminService = {
+    // --- Payments ---
+    getPayments: async () => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.PAYMENTS, {
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to fetch payments');
+        return response.json();
+    },
+
+    updatePaymentStatus: async (id, status) => {
+        const response = await fetch(API_ENDPOINTS.ADMIN.PAYMENT_STATUS(id, status), {
+            method: 'PUT',
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to update payment status');
+        return true;
+    },
+
     // --- Students ---
     getAllStudents: async () => {
         const response = await fetch(API_ENDPOINTS.ADMIN.STUDENTS, {

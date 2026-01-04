@@ -1,18 +1,30 @@
-import { useData } from '../../context/DataContext';
+import { useState, useEffect } from 'react';
+import { studentService } from '../../services/studentService';
+import { Link } from 'react-router-dom'; // Add Link for navigation
 import Sidebar from '../../components/layout/Sidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { FileText, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { FileText, CheckCircle, Clock, AlertCircle, ArrowLeft, Loader2, PlayCircle, GraduationCap } from 'lucide-react'; // Added icons
 import Badge from '../../components/ui/Badge';
 
 export default function ExamsPage() {
-    const { exams } = useData();
+    const [exams, setExams] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Dummy status logic
-    const getStatus = (examId) => {
-        const statuses = ['completed', 'pending', 'locked'];
-        return statuses[examId % 3];
-    };
+    useEffect(() => {
+        const fetchExams = async () => {
+            try {
+                const data = await studentService.getAllExams();
+                console.log("sleem check data",data)
+                setExams(data);
+            } catch (error) {
+                console.error('Failed to fetch exams', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchExams();
+    }, []);
 
     return (
         <div className="flex min-h-screen bg-light font-sans">
@@ -23,52 +35,54 @@ export default function ExamsPage() {
                     <p className="text-gray-600">اختبر مستواك باستمرار لضمان التفوق</p>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {exams.map((exam) => {
-                        const status = getStatus(exam.id);
-                        return (
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <Loader2 className="animate-spin text-primary w-8 h-8" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {exams.length > 0 ? exams.map((exam) => (
                             <Card key={exam.id} className="border-none shadow-md bg-white hover:shadow-lg transition-all group">
                                 <CardContent className="p-6">
                                     <div className="flex justify-between items-start mb-4">
-                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                                            <FileText size={24} />
+                                        <div className={`p-3 rounded-xl ${exam.isFree ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'} group-hover:scale-110 transition-transform`}>
+                                            <GraduationCap size={24} />
                                         </div>
-                                        {status === 'completed' && <Badge className="bg-green-100 text-green-700">مكتمل</Badge>}
-                                        {status === 'pending' && <Badge className="bg-yellow-100 text-yellow-700">متاح الآن</Badge>}
-                                        {status === 'locked' && <Badge className="bg-gray-100 text-gray-500">مغلق</Badge>}
+                                         {exam.isFree ? 
+                                            <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
+                                            <Badge className="bg-blue-100 text-blue-700">دورة</Badge>
+                                         }
                                     </div>
 
                                     <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
+                                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">{exam.description || 'لا يوجد وصف'}</p>
+
                                     <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                                         <div className="flex items-center gap-1">
-                                            <Clock size={14} />
-                                            <span>30 دقيقة</span>
+                                            <Clock size={16} />
+                                            <span>{exam.durationMinutes || 60} دقيقة</span>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <AlertCircle size={14} />
-                                            <span>20 سؤال</span>
+                                            <AlertCircle size={16} />
+                                            <span>{exam.questionsCount || '?'} سؤال</span>
                                         </div>
                                     </div>
 
-                                    {status === 'completed' ? (
-                                        <div className="bg-gray-50 p-3 rounded-lg flex items-center justify-between">
-                                            <span className="text-sm font-bold text-gray-600">الدرجة:</span>
-                                            <span className="text-lg font-bold text-green-600">18/20</span>
-                                        </div>
-                                    ) : status === 'pending' ? (
-                                        <Button className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
+                                    <Link to={`/student/exam/${exam.id}`} className="block">
+                                        <Button className="w-full gap-2" variant={exam.isFree ? 'success' : 'primary'}>
+                                            <PlayCircle size={18} />
                                             ابدأ الامتحان
                                         </Button>
-                                    ) : (
-                                        <Button disabled className="w-full bg-gray-100 text-gray-400 rounded-xl cursor-not-allowed">
-                                            غير متاح
-                                        </Button>
-                                    )}
+                                    </Link>
                                 </CardContent>
                             </Card>
-                        );
-                    })}
-                </div>
+                        )) : (
+                            <div className="col-span-full text-center py-12 text-gray-500">
+                                لا توجد امتحانات متاحة حالياً
+                            </div>
+                        )}
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -17,12 +17,13 @@ export default function AdminExams() {
     
     // Exams State
     const [exams, setExams] = useState([]);
-    const [view, setView] = useState('list'); // 'list', 'form', 'questions'
+    const [view, setView] = useState('list'); // 'list', 'form', 'questions', 'results'
     const [editingExam, setEditingExam] = useState(null);
     const [examFormData, setExamFormData] = useState({
         title: '',
         totalMarks: 10,
         examDate: '',
+        endDate: '',
         accessType: 2, // 1: Free, 2: Platform
         duration: 30
     });
@@ -40,6 +41,10 @@ export default function AdminExams() {
         correctOption: 'optionA',
         marks: 1
     });
+
+    // Results State
+    const [selectedExamForResults, setSelectedExamForResults] = useState(null);
+    const [examResults, setExamResults] = useState([]);
 
     // Fetch courses on mount
     useEffect(() => {
@@ -106,9 +111,10 @@ export default function AdminExams() {
             const payload = {
                 title: examFormData.title,
                 totalMarks: parseInt(examFormData.totalMarks),
-                examDate: examFormData.examDate || new Date().toISOString(),
+                examDate: examFormData.examDate ? new Date(examFormData.examDate).toISOString() : new Date().toISOString(),
+                endDate: examFormData.endDate ? new Date(examFormData.endDate).toISOString() : new Date().toISOString(),
                 accessType: parseInt(examFormData.accessType),
-                // duration: parseInt(examFormData.duration) // Add duration if API supports it, user JSON didn't show it but it's in UI
+                duration: parseInt(examFormData.duration)
             };
 
             if (editingExam) {
@@ -121,7 +127,7 @@ export default function AdminExams() {
             
             setView('list');
             setEditingExam(null);
-            setExamFormData({ title: '', totalMarks: 10, examDate: '', accessType: 2, duration: 30 });
+            setExamFormData({ title: '', totalMarks: 10, examDate: '', endDate: '', accessType: 2, duration: 30 });
             fetchExams();
         } catch (err) {
             console.error(err);
@@ -218,6 +224,23 @@ export default function AdminExams() {
         }
     };
 
+
+    const handleShowResults = async (exam) => {
+        setSelectedExamForResults(exam);
+        setLoading(true);
+        try {
+            const data = await adminService.getExamResults(exam.id);
+            setExamResults(data);
+            setView('results');
+            console.log(data)
+        } catch (err) {
+            console.error(err);
+            showError('فشل تحميل نتائج الطلاب');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // --- Renders ---
 
     const renderExamList = () => (
@@ -237,7 +260,7 @@ export default function AdminExams() {
                 </div>
                 <Button onClick={() => {
                     setEditingExam(null);
-                    setExamFormData({ title: '', totalMarks: 10, examDate: '', accessType: 2, duration: 30 });
+                    setExamFormData({ title: '', totalMarks: 10, examDate: '', endDate: '', accessType: 0, duration: 30 });
                     setView('form');
                 }} className="gap-2">
                     <Plus size={20} /> إضافة اختبار
@@ -260,7 +283,6 @@ export default function AdminExams() {
                                         {exam.accessType === 1 ? 'مجاني' : 'مدفوع (منصة)'}
                                     </span>
                                     <span>• {exam.totalMarks} درجة</span>
-                                    {/* <span>• {new Date(exam.examDate).toLocaleDateString()}</span> */}
                                 </div>
                             </div>
                         </div>
@@ -271,8 +293,11 @@ export default function AdminExams() {
                             <Button variant="ghost" size="icon" onClick={() => handleOpenExam(exam)} title="فتح الاختبار">
                                 <PlayCircle size={18} className="text-green-600" />
                             </Button>
-                             <Button variant="ghost" size="icon" onClick={() => handleCloseExam(exam)} title="إغلاق الاختبار">
+                            <Button variant="ghost" size="icon" onClick={() => handleCloseExam(exam)} title="إغلاق الاختبار">
                                 <StopCircle size={18} className="text-orange-600" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleShowResults(exam)} title="عرض النتائج">
+                                <Eye size={18} className="text-indigo-600" />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => {
                                 setEditingExam(exam);
@@ -280,6 +305,7 @@ export default function AdminExams() {
                                     title: exam.title,
                                     totalMarks: exam.totalMarks,
                                     examDate: exam.examDate,
+                                    endDate: exam.endDate, 
                                     accessType: exam.accessType,
                                     duration: exam.duration || 30
                                 });
@@ -320,13 +346,21 @@ export default function AdminExams() {
                             value={examFormData.accessType}
                             onChange={e => setExamFormData({...examFormData, accessType: e.target.value})}
                         >
-                            <option value={1}>مجاني (Free)</option>
-                            <option value={2}>منصة (Platform)</option>
+                            <option value={0}>مجاني (Free)</option>
+                            <option value={1}>منصة (Platform)</option>
                         </select>
                     </div>
                      <div>
-                        <label className="block text-sm font-medium mb-1">تاريخ الاختبار</label>
+                        <label className="block text-sm font-medium mb-1">تاريخ البدء</label>
                         <Input type="datetime-local" value={examFormData.examDate ? examFormData.examDate.substring(0, 16) : ''} onChange={e => setExamFormData({...examFormData, examDate: e.target.value})} />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">تاريخ الانتهاء</label>
+                        <Input type="datetime-local" value={examFormData.endDate ? examFormData.endDate.substring(0, 16) : ''} onChange={e => setExamFormData({...examFormData, endDate: e.target.value})} />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">المدة (دقيقة)</label>
+                         <Input type="number" value={examFormData.duration} onChange={e => setExamFormData({...examFormData, duration: e.target.value})} />
                     </div>
                 </div>
                 <div className="flex justify-end gap-2">
@@ -437,14 +471,62 @@ export default function AdminExams() {
          </div>
     );
 
-    // Fix for variable name 'layout' used in renderExamForm
+    const renderResultsView = () => (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" onClick={() => setView('list')}><ArrowLeft /></Button>
+                    <div>
+                        <h3 className="text-xl font-bold">{selectedExamForResults?.title}</h3>
+                        <p className="text-gray-500 text-sm">نتائج الطلاب</p>
+                    </div>
+                </div>
+            </div>
+
+            <Card>
+                <CardContent className="p-0 overflow-x-auto">
+                    <table className="w-full text-right">
+                        <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+                            <tr>
+                                <th className="p-4">اسم الطالب</th>
+                                <th className="p-4">الدرجة</th>
+                                <th className="p-4">وقت الأداء</th>
+                                <th className="p-4">وقت الانتهاء</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {examResults.length > 0 ? examResults.map((result, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                    <td className="p-4 font-bold">{result.studentName}</td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded text-sm font-bold ${result.score >= (selectedExamForResults?.totalMarks / 2) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {result.score} / {selectedExamForResults?.totalMarks}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-gray-600" dir="ltr">{new Date(result.takenAt).toLocaleString('ar-EG',{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}</td>
+                                    <td className="p-4 text-gray-600 w-1/4" dir="ltr">
+                                       {new Date(result.finishedAt).toLocaleString('ar-EG',{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="4" className="p-8 text-center text-gray-500">لا توجد نتائج حتى الآن</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </CardContent>
+            </Card>
+        </div>
+    );
+
     const layout = loading ? 'loading' : 'default'; 
 
     return (
         <div className="flex min-h-screen bg-gray-100">
             <AdminSidebar />
             <main className="flex-1 p-8 overflow-y-auto">
-                {view !== 'questions' && (
+                {view !== 'questions' && view !== 'results' && (
                     <header className="flex justify-between items-center mb-8">
                         <div>
                             <h1 className="text-3xl font-bold text-secondary mb-2">إدارة الاختبارات</h1>
@@ -456,6 +538,7 @@ export default function AdminExams() {
                 {view === 'list' && renderExamList()}
                 {view === 'form' && renderExamForm()}
                 {view === 'questions' && renderQuestionsView()}
+                {view === 'results' && renderResultsView()}
             </main>
         </div>
     );

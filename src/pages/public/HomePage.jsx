@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import Button from '../../components/ui/Button';
 import Footer from '../../components/layout/Footer';
 import FreeVideos from '../../components/public/FreeVideos';
+import FreeExams from '../../components/public/FreeExams';
+import { useNavigate } from 'react-router-dom';
 import { PlayCircle, UserPlus, ArrowLeft, Star, Shield, Clock, CheckCircle, Users, BookOpen, Award, Sparkles, TrendingUp } from 'lucide-react';
 
 export default function HomePage() {
+    const navigate=useNavigate()
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
             {/* Animated Background Shapes */}
@@ -393,6 +396,9 @@ export default function HomePage() {
                     </div>
                 </div>
 
+                {/* Free Exams Section */}
+                <FreeExams />
+
                 {/* Free Videos Section */}
                 <FreeVideos />
 
@@ -427,17 +433,14 @@ export default function HomePage() {
                         >
                             <h2 className="text-4xl font-bold text-gray-900 mb-6">جاهز لتبدأ رحلة التفوق؟</h2>
                             <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">انضم الآن إلى آلاف الطلاب الذين حققوا أحلامهم مع منصة الغزالي</p>
-                            <Link to="/register">
-                                <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <Button className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white text-xl px-12 py-5 rounded-xl shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all font-bold">
-                                        اشترك الآن مجاناً
+                           
+                             
+                                    <Button onClick={()=>navigate("/register")} className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white text-xl px-12 py-5 rounded-xl shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all font-bold cursor-pointer">
+                                       اشترك الآن مجاناً 
                                     </Button>
                                 </motion.div>
-                            </Link>
-                        </motion.div>
+                            
+
                     </div>
                 </div>
 

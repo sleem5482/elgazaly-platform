@@ -17,7 +17,7 @@ export default function Sidebar() {
 
     const links = [
         { name: 'الرئيسية', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'الكورسات', path: `/grade/${user?.grade}`, icon: BookOpen },
+        { name: 'الكورسات', path: '/courses', icon: BookOpen },
         { name: 'الامتحانات', path: '/exams', icon: GraduationCap },
         // { name: 'الشهادات', path: '/certificates', icon: Award },
         // { name: 'الإعدادات', path: '/settings', icon: Settings },
@@ -41,7 +41,7 @@ export default function Sidebar() {
                     const isActive = location.pathname === link.path;
                     return (
                         <Link
-                            key={link.path}
+                            key={link.name}
                             to={link.path}
                             className="block relative"
                         >

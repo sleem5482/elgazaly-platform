@@ -14,6 +14,10 @@ import WeekPage from './pages/student/WeekPage';
 import LessonPage from './pages/student/LessonPage';
 import PaymentPage from './pages/student/PaymentPage';
 import ExamsPage from './pages/student/ExamsPage';
+
+import ExamTakingPage from './pages/student/ExamTakingPage';
+import CoursePage from './pages/student/CoursePage'; // Import CoursePage (Single Course)
+import CoursesPage from './pages/student/CoursesPage'; // Import CoursesPage (All Courses)
 import CertificatesPage from './pages/student/CertificatesPage';
 import SettingsPage from './pages/student/SettingsPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -92,9 +96,19 @@ function App() {
             <WeekPage />
           </ProtectedRoute>
         } />
-        <Route path="/lesson/:lessonId" element={
+        <Route path="/student/lesson/:lessonId" element={
           <ProtectedRoute allowedRoles={['student', 'admin']}>
             <LessonPage />
+          </ProtectedRoute>
+        } />
+         <Route path="/courses" element={
+          <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <CoursesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/course/:courseId" element={ // Add New Route
+          <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <CoursePage />
           </ProtectedRoute>
         } />
         <Route path="/payment" element={
@@ -105,6 +119,11 @@ function App() {
         <Route path="/exams" element={
           <ProtectedRoute allowedRoles={['student', 'admin']}>
             <ExamsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/exam/:id" element={
+          <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ExamTakingPage />
           </ProtectedRoute>
         } />
         {/* <Route path="/certificates" element={

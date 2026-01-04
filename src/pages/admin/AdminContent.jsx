@@ -30,6 +30,8 @@ export default function AdminContent() {
     // Form state
     const [newItemName, setNewItemName] = useState('');
     const [newItemOrder, setNewItemOrder] = useState(1);
+    const [newItemStartDate, setNewItemStartDate] = useState('');
+    const [newItemEndDate, setNewItemEndDate] = useState('');
     const [newItemImage, setNewItemImage] = useState(null); // File object
     const [newItemImageUrl, setNewItemImageUrl] = useState(''); // Preview URL
     const [newItemVideoFile, setNewItemVideoFile] = useState(null); // File object for video
@@ -104,9 +106,8 @@ export default function AdminContent() {
                 const data = {
                     monthName: newItemName,
                     orderNumber: newItemOrder,
-                    startDate: new Date().toISOString(), // Defaults
-                    endDate: new Date().toISOString()
-                    // Image? API doesn't show image field in snippet. Ignoring for now or finding way.
+                    startDate: newItemStartDate ? new Date(newItemStartDate).toISOString() : new Date().toISOString(),
+                    endDate: newItemEndDate ? new Date(newItemEndDate).toISOString() : new Date().toISOString()
                 };
                 await adminService.createMonth(selectedCourse.id, data);
                 toast.success('تم إضافة الشهر بنجاح');
@@ -141,6 +142,8 @@ export default function AdminContent() {
             // Reset common fields
             setNewItemName('');
             setNewItemOrder(prev => prev + 1);
+            setNewItemStartDate('');
+            setNewItemEndDate('');
         } catch (err) {
             console.error(err);
             toast.error('حدث خطأ أثناء الإضافة');
@@ -177,8 +180,8 @@ export default function AdminContent() {
                 const data = {
                     monthName: editFormData.monthName || editFormData.title || editFormData.name, 
                     orderNumber: editFormData.orderNumber || editFormData.order,
-                    startDate: editFormData.startDate || new Date().toISOString(),
-                    endDate: editFormData.endDate || new Date().toISOString()
+                    startDate: editFormData.startDate ? new Date(editFormData.startDate).toISOString() : new Date().toISOString(),
+                    endDate: editFormData.endDate ? new Date(editFormData.endDate).toISOString() : new Date().toISOString()
                 };
                 await adminService.updateMonth(selectedCourse.id, id, data);
                 fetchMonths();
@@ -343,6 +346,27 @@ export default function AdminContent() {
                         value={newItemOrder}
                         onChange={(e) => setNewItemOrder(parseInt(e.target.value) || 1)}
                     />
+
+                    {type === 'month' && (
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
+                                <Input
+                                    type="datetime-local"
+                                    value={newItemStartDate}
+                                    onChange={(e) => setNewItemStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
+                                <Input
+                                    type="datetime-local"
+                                    value={newItemEndDate}
+                                    onChange={(e) => setNewItemEndDate(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
                     
                     {type === 'video' && (
                         <div className="space-y-4">
@@ -408,6 +432,26 @@ export default function AdminContent() {
                                         onChange={(e) => setEditFormData({ ...editFormData, orderNumber: e.target.value })}
                                         placeholder="الترتيب"
                                     />
+                                    {type === 'month' && (
+                                        <div className="flex gap-4">
+                                           <div className="flex-1">
+                                               <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
+                                               <Input
+                                                   type="datetime-local"
+                                                   value={editFormData.startDate ? new Date(editFormData.startDate).toISOString().slice(0, 16) : ''}
+                                                   onChange={(e) => setEditFormData({ ...editFormData, startDate: e.target.value })}
+                                               />
+                                           </div>
+                                           <div className="flex-1">
+                                               <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
+                                               <Input
+                                                   type="datetime-local"
+                                                   value={editFormData.endDate ? new Date(editFormData.endDate).toISOString().slice(0, 16) : ''}
+                                                   onChange={(e) => setEditFormData({ ...editFormData, endDate: e.target.value })}
+                                               />
+                                           </div>
+                                       </div>
+                                    )}
                                      {type === 'video' && (
                                          <div className="space-y-4 pt-2 border-t mt-2">
                                              <Input 

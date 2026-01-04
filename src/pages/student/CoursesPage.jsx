@@ -1,23 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useData } from '../../context/DataContext';
 import { Link } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
-import { BookOpen, GraduationCap, Clock, PlayCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { BookOpen, ArrowLeft, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-
 import { studentService } from '../../services/studentService';
 
-export default function StudentDashboard() {
+export default function CoursesPage() {
     const { user } = useAuth();
-    // const { grades } = useData(); // Removing useData dependency for courses
     const [courses, setCourses] = useState([]);
     const [loadingCourses, setLoadingCourses] = useState(true);
     const [selectedGrade, setSelectedGrade] = useState('all'); // 'all', 1, 2, 3
-
-    const [exams, setExams] = useState([]);
-    const [loadingExams, setLoadingExams] = useState(true);
 
     const filteredCourses = courses.filter(course => {
         if (selectedGrade === 'all') return true;
@@ -25,75 +19,28 @@ export default function StudentDashboard() {
         return gradeId === selectedGrade;
     });
 
-    const userName = user?.fullName || user?.name || 'طالب';
-    const userGradeId = user?.gradeId || user?.grade;
-
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchCourses = async () => {
              try {
-                 const [coursesData, examsData] = await Promise.all([
-                     studentService.getMyCourses(),
-                     studentService.getAllExams()
-                 ]);
-                 console.log(coursesData);
-                 setCourses(coursesData);
-                 setExams(examsData);
+                 const data = await studentService.getMyCourses();
+                 setCourses(data);
              } catch (error) {
-                 console.error('Failed to fetch dashboard data', error);
-                 // Fallback or empty
+                 console.error('Failed to fetch courses', error);
              } finally {
                  setLoadingCourses(false);
-                 setLoadingExams(false);
              }
         };
-        fetchData();
+        fetchCourses();
     }, []);
 
     return (
         <div className="flex min-h-screen bg-light font-sans">
             <Sidebar />
             <main className="flex-1 p-8 overflow-y-auto">
-                <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h1 className="text-3xl font-bold text-dark mb-2">مرحباً، {userName} 👋</h1>
-                        <p className="text-gray-600">نتمنى لك يوماً دراسياً مليئاً بالإنجاز</p> 
-                    </div>
-                </header>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                     <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
-                        <CardContent className="flex items-center gap-4 p-6">
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary/10 text-primary">
-                                <BookOpen size={28} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium mb-1">كورساتي</p>
-                                <p className="text-2xl font-bold text-dark">{courses.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    {/* Other stats placeholders kept or simplified */}
-                     <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow">
-                        <CardContent className="flex items-center gap-4 p-6">
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-secondary/10 text-secondary">
-                                <GraduationCap size={28} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium mb-1">الامتحانات</p>
-                                <p className="text-2xl font-bold text-dark">{exams.length}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Exams Section */}
-                <ExamsSection exams={exams} loading={loadingExams} />
-
                 {/* Main Actions: My Courses */}
                 <h2 className="text-2xl font-bold text-dark mb-6 flex items-center gap-2">
                     <BookOpen className="text-primary" />
-                    المحتوى الدراسي (كورساتي)
+                    المحتوى الدراسي (كل الكورسات)
                 </h2>
 
                 {/* Filters */}
@@ -147,8 +94,6 @@ export default function StudentDashboard() {
                                 if (gid === 3) return 'الثالث الثانوي';
                                 return '';
                             };
-
-                            console.log(`Course ${cId}:`, { cName, isEnrolled, isActive, raw: course });
 
                             return (
                                 <Link key={cId} to={isEnrolled && isActive ? `/student/course/${cId}` : '#'} className={`group ${(!isEnrolled || !isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>
@@ -218,55 +163,6 @@ export default function StudentDashboard() {
                     </div>
                 )}
             </main>
-        </div>
-    );
-}
-
-function ExamsSection({ exams, loading }) {
-    if (loading) return <div className="text-center py-4"><Loader2 className="animate-spin inline-block" /> جاري تحميل الامتحانات...</div>;
-    
-    if (!exams || exams.length === 0) return null;
-
-    return (
-        <div className="mb-12">
-            <h2 className="text-2xl font-bold text-dark mb-6 flex items-center gap-2">
-                <GraduationCap className="text-secondary" />
-                الامتحانات المتاحة
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {exams.map(exam => (
-                    <Card key={exam.id} className="border-none shadow-sm bg-white hover:shadow-md transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className={`p-3 rounded-xl ${exam.isFree ? 'bg-green-100 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
-                                    <GraduationCap size={24} />
-                                </div>
-                                {exam.isFree && <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">مجاني</span>}
-                            </div>
-                            <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
-                            <p className="text-gray-500 text-sm mb-4 line-clamp-2">{exam.description || 'لا يوجد وصف'}</p>
-                            
-                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                                <div className="flex items-center gap-1">
-                                    <Clock size={16} />
-                                    <span>{exam.durationMinutes || 60} دقيقة</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <BookOpen size={16} />
-                                    <span>{exam.questionsCount || '?'} أسئلة</span>
-                                </div>
-                            </div>
-
-                            <Link to={`/student/exam/${exam.id}`} className="block">
-                                <Button className="w-full gap-2" variant={exam.isFree ? 'success' : 'secondary'}>
-                                    <PlayCircle size={18} />
-                                    ابدأ الامتحان
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
         </div>
     );
 }
