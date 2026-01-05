@@ -15,7 +15,7 @@ export default function ExamsPage() {
         const fetchExams = async () => {
             try {
                 const data = await studentService.getAllExams();
-                console.log("sleem check data",data)
+                // console.log("sleem check data _______________________",data)
                 setExams(data);
             } catch (error) {
                 console.error('Failed to fetch exams', error);
@@ -45,26 +45,26 @@ export default function ExamsPage() {
                             <Card key={exam.id} className="border-none shadow-md bg-white hover:shadow-lg transition-all group">
                                 <CardContent className="p-6">
                                     <div className="flex justify-between items-start mb-4">
-                                        <div className={`p-3 rounded-xl ${exam.isFree ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'} group-hover:scale-110 transition-transform`}>
+                                        <div className={`p-3 rounded-xl ${exam.examType=="Free" ? 'bg-green-100 text-green-600' : 'bg-primary/10 text-primary'} group-hover:scale-110 transition-transform`}>
                                             <GraduationCap size={24} />
                                         </div>
-                                         {exam.isFree ? 
+                                         {exam.examType=="Free" ? 
                                             <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
-                                            <Badge className="bg-blue-100 text-blue-700">دورة</Badge>
+                                            <Badge className="bg-blue-100 text-blue-700">منصة</Badge>
                                          }
                                     </div>
 
                                     <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
-                                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">{exam.description || 'لا يوجد وصف'}</p>
+                                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</p>
 
                                     <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                                         <div className="flex items-center gap-1">
                                             <Clock size={16} />
-                                            <span>{exam.durationMinutes || 60} دقيقة</span>
+                                            <span>{exam.durationMinutes } دقيقة</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <AlertCircle size={16} />
-                                            <span>{exam.questionsCount || '?'} سؤال</span>
+                                            <span>{exam.totalMarks || '?'} {exam.totalMarks > 1 ? 'درجات' : 'درجة'}</span>
                                         </div>
                                     </div>
 

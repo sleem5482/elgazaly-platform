@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import Button from '../../components/ui/Button';
 import { adminService } from '../../services/adminService';
 import { MEDIA_BASE_URL } from '../../config/api';
-import { CheckCircle, XCircle, Clock, Loader2, Image as ImageIcon, Phone, Wallet, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Loader2, Image as ImageIcon, Phone, Wallet, Calendar, Filter } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import { useToast } from '../../context/ToastContext';
+import { useData } from '../../context/DataContext';
 
 export default function AdminSubscriptions() {
     const toast = useToast();
+    const { grades } = useData();
     const [payments, setPayments] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState(null);
+
+    // Filter States
+    const [selectedGrade, setSelectedGrade] = useState('all');
+    const [selectedMonth, setSelectedMonth] = useState('all');
 
     const fetchPayments = async () => {
         try {
@@ -25,8 +32,18 @@ export default function AdminSubscriptions() {
         }
     };
 
+    const fetchCourses = async () => {
+        try {
+            const data = await adminService.getAllCourses();
+            setCourses(data);
+        } catch (error) {
+            console.error('Failed to fetch courses for filtering', error);
+        }
+    };
+
     useEffect(() => {
         fetchPayments();
+        fetchCourses();
     }, []);
 
     const handleStatusUpdate = async (id, status) => {
@@ -54,18 +71,97 @@ export default function AdminSubscriptions() {
         }
     };
 
+    // Filter Logic
+    const filteredPayments = useMemo(() => {
+        return payments.filter(payment => {
+            // Filter by Grade
+            if (selectedGrade !== 'all') {
+                // Find course for this payment
+                // Assuming payment has courseId or we match by Name
+                const course = courses.find(c => c.id === payment.courseId || c.name === payment.courseName || c.title === payment.courseName);
+                if (!course || String(course.gradeId) !== String(selectedGrade)) {
+                    return false;
+                }
+            }
+
+            // Filter by Month
+            if (selectedMonth !== 'all') {
+                if (payment.monthName !== selectedMonth) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }, [payments, courses, selectedGrade, selectedMonth]);
+
+    // Get unique months from payments for the filter dropdown
+    const availableMonths = useMemo(() => {
+        const months = new Set(payments.map(p => p.monthName).filter(Boolean));
+        return Array.from(months);
+    }, [payments]);
+
     return (
         <div className="flex min-h-screen bg-gray-100 font-sans">
             <AdminSidebar />
             <main className="flex-1 p-8 overflow-y-auto">
-                <header className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-secondary mb-2">طلبات الاشتراك</h1>
-                        <p className="text-gray-500">مراجعة وإدارة طلبات اشتراك الطلاب</p>
+                <header className="mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <div>
+                            <h1 className="text-3xl font-bold text-secondary mb-2">طلبات الاشتراك</h1>
+                            <p className="text-gray-500">مراجعة وإدارة طلبات اشتراك الطلاب</p>
+                        </div>
+                        <Button variant="outline" onClick={fetchPayments} disabled={loading} className="gap-2">
+                            <Clock size={18} /> تحديث
+                        </Button>
                     </div>
-                    <Button variant="outline" onClick={fetchPayments} disabled={loading} className="gap-2">
-                        <Clock size={18} /> تحديث
-                    </Button>
+
+                    {/* Filters Section */}
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center">
+                        <div className="flex items-center gap-2 text-gray-500 font-medium">
+                            <Filter size={20} />
+                            تصفية حسب:
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-600">الصف الدراسي:</label>
+                            <select 
+                                className="border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                value={selectedGrade}
+                                onChange={(e) => setSelectedGrade(e.target.value)}
+                            >
+                                <option value="all">الكل</option>
+                                {grades.map(grade => (
+                                    <option key={grade.id} value={grade.id}>{grade.title}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-600">الشهر:</label>
+                            <select 
+                                className="border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                value={selectedMonth}
+                                onChange={(e) => setSelectedMonth(e.target.value)}
+                            >
+                                <option value="all">الكل</option>
+                                {availableMonths.map(month => (
+                                    <option key={month} value={month}>{month}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {(selectedGrade !== 'all' || selectedMonth !== 'all') && (
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-red-500 hover:bg-red-50 mr-auto"
+                                onClick={() => { setSelectedGrade('all'); setSelectedMonth('all'); }}
+                            >
+                                إلغاء التصفية
+                            </Button>
+                        )}
+                    </div>
                 </header>
 
                 {loading ? (
@@ -74,8 +170,10 @@ export default function AdminSubscriptions() {
                     </div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                        {payments.length === 0 ? (
-                            <div className="text-center py-12 text-gray-500">لا توجد طلبات اشتراك حالياً</div>
+                        {filteredPayments.length === 0 ? (
+                            <div className="text-center py-12 text-gray-500">
+                                {payments.length === 0 ? 'لا توجد طلبات اشتراك حالياً' : 'لا توجد نتائج مطابقة للتصفية'}
+                            </div>
                         ) : (
                             <div className="overflow-x-auto">
                                 <table className="w-full text-right">
@@ -91,7 +189,7 @@ export default function AdminSubscriptions() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {payments.map(payment => (
+                                        {filteredPayments.map(payment => (
                                             <tr key={payment.paymentId} className="hover:bg-gray-50 transition-colors">
                                                 <td className="p-4">
                                                     <div className="font-bold text-gray-800">{payment.studentName}</div>
@@ -104,6 +202,7 @@ export default function AdminSubscriptions() {
                                                     <div className="text-sm text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block mt-1">
                                                         {payment.monthName}
                                                     </div>
+                                                    {/* Debug helper if needed: gradeId logic */}
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="font-bold text-gray-800">{payment.amount} ج.م</div>

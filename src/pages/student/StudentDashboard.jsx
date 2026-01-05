@@ -6,7 +6,7 @@ import Sidebar from '../../components/layout/Sidebar';
 import { BookOpen, GraduationCap, Clock, PlayCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-
+import Badge from '../../components/ui/Badge';
 import { studentService } from '../../services/studentService';
 
 export default function StudentDashboard() {
@@ -238,22 +238,23 @@ function ExamsSection({ exams, loading }) {
                     <Card key={exam.id} className="border-none shadow-sm bg-white hover:shadow-md transition-all">
                         <CardContent className="p-6">
                             <div className="flex justify-between items-start mb-4">
-                                <div className={`p-3 rounded-xl ${exam.isFree ? 'bg-green-100 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
+                                <div className={`p-3 rounded-xl ${exam.examType=="Free" ? 'bg-green-100 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
                                     <GraduationCap size={24} />
                                 </div>
-                                {exam.isFree && <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">مجاني</span>}
-                            </div>
-                            <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
-                            <p className="text-gray-500 text-sm mb-4 line-clamp-2">{exam.description || 'لا يوجد وصف'}</p>
+ {exam.examType=="Free" ? 
+                                            <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
+                                            <Badge className="bg-blue-100 text-blue-700">منصة</Badge>
+                                         }                            </div>
+                            <h3 className="text-xl font-bold text-dark mb-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h3>
                             
                             <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                                 <div className="flex items-center gap-1">
                                     <Clock size={16} />
-                                    <span>{exam.durationMinutes || 60} دقيقة</span>
+                                    <span>{exam.durationMinutes } دقيقة</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <BookOpen size={16} />
-                                    <span>{exam.questionsCount || '?'} أسئلة</span>
+                                    <span>{exam.totalMarks || '?'} {exam.totalMarks > 1 ? 'درجات' : 'درجة'}</span>
                                 </div>
                             </div>
 
