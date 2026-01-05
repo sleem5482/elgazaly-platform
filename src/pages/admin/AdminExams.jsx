@@ -21,10 +21,8 @@ export default function AdminExams() {
     const [editingExam, setEditingExam] = useState(null);
     const [examFormData, setExamFormData] = useState({
         title: '',
-        totalMarks: 10,
         examDate: '',
-        endDate: '',
-        accessType: 2, // 1: Free, 2: Platform
+        accessType: 1, // 1: Free, 2: Platform
         duration: 30
     });
 
@@ -108,26 +106,29 @@ export default function AdminExams() {
 
         setLoading(true);
         try {
+            // Payload with only allowed fields
+            console.log("before examFormData",examFormData);
             const payload = {
                 title: examFormData.title,
-                totalMarks: parseInt(examFormData.totalMarks),
                 examDate: examFormData.examDate ? new Date(examFormData.examDate).toISOString() : new Date().toISOString(),
-                endDate: examFormData.endDate ? new Date(examFormData.endDate).toISOString() : new Date().toISOString(),
-                accessType: parseInt(examFormData.accessType),
-                duration: parseInt(examFormData.duration)
+                accessType: examFormData.accessType =="Free"|| examFormData.accessType == 1 ? 1 : 2,
+                durationMinutes: parseInt(examFormData.duration)
             };
 
             if (editingExam) {
+                console.log(payload);
+                console.log(editingExam);
                 await adminService.updateExam(selectedCourseId, editingExam.id, payload);
                 success('تم تحديث الاختبار بنجاح');
             } else {
+                console.log(payload);
                 await adminService.createExam(selectedCourseId, payload);
                 success('تم إنشاء الاختبار بنجاح');
             }
             
             setView('list');
             setEditingExam(null);
-            setExamFormData({ title: '', totalMarks: 10, examDate: '', endDate: '', accessType: 2, duration: 30 });
+            setExamFormData({ title: '', examDate: '', accessType: 2, duration: 30 });
             fetchExams();
         } catch (err) {
             console.error(err);
@@ -141,6 +142,9 @@ export default function AdminExams() {
         if (!await confirm('هل أنت متأكد من حذف هذا الاختبار؟')) return;
         
         try {
+            console.log("sleem hashem")
+            console.log("selectedCourseId",selectedCourseId);
+            console.log("examId",examId);
             await adminService.deleteExam(selectedCourseId, examId);
             success('تم حذف الاختبار بنجاح');
             fetchExams();
@@ -260,7 +264,7 @@ export default function AdminExams() {
                 </div>
                 <Button onClick={() => {
                     setEditingExam(null);
-                    setExamFormData({ title: '', totalMarks: 10, examDate: '', endDate: '', accessType: 0, duration: 30 });
+                    setExamFormData({ title: '', examDate: '', accessType: 1, duration: 30 });
                     setView('form');
                 }} className="gap-2">
                     <Plus size={20} /> إضافة اختبار
@@ -280,7 +284,7 @@ export default function AdminExams() {
                                 <h3 className="text-xl font-bold text-secondary">{exam.title}</h3>
                                 <div className="flex gap-2 text-sm text-gray-500 mt-1">
                                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${exam.accessType === 1 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                        {exam.accessType === 1 ? 'مجاني' : 'مدفوع (منصة)'}
+                                        {exam.accessType === "Free" ? 'مجاني' : 'مدفوع (منصة)'}
                                     </span>
                                     <span>• {exam.totalMarks} درجة</span>
                                 </div>
@@ -303,11 +307,9 @@ export default function AdminExams() {
                                 setEditingExam(exam);
                                 setExamFormData({
                                     title: exam.title,
-                                    totalMarks: exam.totalMarks,
                                     examDate: exam.examDate,
-                                    endDate: exam.endDate, 
-                                    accessType: exam.accessType,
-                                    duration: exam.duration || 30
+                                    accessType: exam.accessType=="Free"|| exam.accessType == 1 ? 1 : 2,
+                                    duration: exam.durationMinutes
                                 });
                                 setView('form');
                             }} className="text-blue-600">
@@ -335,10 +337,7 @@ export default function AdminExams() {
                         <label className="block text-sm font-medium mb-1">اسم الاختبار</label>
                         <Input value={examFormData.title} onChange={e => setExamFormData({...examFormData, title: e.target.value})} />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">الدرجة الكلية</label>
-                        <Input type="number" value={examFormData.totalMarks} onChange={e => setExamFormData({...examFormData, totalMarks: e.target.value})} />
-                    </div>
+
                     <div>
                         <label className="block text-sm font-medium mb-1">نوع الوصول</label>
                         <select 
@@ -346,18 +345,15 @@ export default function AdminExams() {
                             value={examFormData.accessType}
                             onChange={e => setExamFormData({...examFormData, accessType: e.target.value})}
                         >
-                            <option value={0}>مجاني (Free)</option>
-                            <option value={1}>منصة (Platform)</option>
+                            <option value={1}>مجاني (Free)</option>
+                            <option value={2}>منصة (Platform)</option>
                         </select>
                     </div>
                      <div>
                         <label className="block text-sm font-medium mb-1">تاريخ البدء</label>
                         <Input type="datetime-local" value={examFormData.examDate ? examFormData.examDate.substring(0, 16) : ''} onChange={e => setExamFormData({...examFormData, examDate: e.target.value})} />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">تاريخ الانتهاء</label>
-                        <Input type="datetime-local" value={examFormData.endDate ? examFormData.endDate.substring(0, 16) : ''} onChange={e => setExamFormData({...examFormData, endDate: e.target.value})} />
-                    </div>
+
                     <div>
                         <label className="block text-sm font-medium mb-1">المدة (دقيقة)</label>
                          <Input type="number" value={examFormData.duration} onChange={e => setExamFormData({...examFormData, duration: e.target.value})} />

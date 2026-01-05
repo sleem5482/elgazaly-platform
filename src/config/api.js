@@ -70,9 +70,13 @@ export const API_ENDPOINTS = {
         },
         EXAMS: {
             AVAILABLE: `${API_BASE_URL}/student/exams/available`,
+            BY_COURSE: (courseId) => `${API_BASE_URL}/student/exams/courses/${courseId}/exams`,
+            QUESTIONS: (id) => `${API_BASE_URL}/student/exams/${id}/questions`,
             START: (id) => `${API_BASE_URL}/student/exams/start/${id}`,
             SUBMIT: `${API_BASE_URL}/student/exams/submit`
-        }
+        },
+        VIDEOS: (weekId) => `${API_BASE_URL}/student/course-weeks/${weekId}/videos`,
+        AVAILABLE_WEEKS: (id) => `${API_BASE_URL}/student/courses/AvailableWEEKS/${id}`
     }
 };
 

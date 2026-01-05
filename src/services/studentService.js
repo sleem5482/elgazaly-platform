@@ -10,15 +10,22 @@ const getAuthHeader = () => {
 };
 
 const handleResponseError = async (response, defaultMessage) => {
-    const errorText = await response.text();
     let errorMessage = defaultMessage;
+    // Try to get JSON error
     try {
-        const errorJson = JSON.parse(errorText);
-        errorMessage = errorJson.message || errorJson.error || errorMessage;
+        const errorText = await response.text();
+        try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.message || errorJson.error || errorMessage;
+        } catch {
+            errorMessage = errorText || errorMessage;
+        }
     } catch (e) {
-        errorMessage = errorText || errorMessage;
+        // ignore
     }
-    throw new Error(errorMessage);
+    
+    // Add status and URL for debugging
+    throw new Error(`${errorMessage} (Status: ${response.status}, URL: ${response.url})`);
 };
 
 export const studentService = {
@@ -30,13 +37,30 @@ export const studentService = {
         return response.json();
     },
 
+    getCourseExams: async (courseId) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.EXAMS.BY_COURSE(courseId), {
+            headers: getAuthHeader()
+        });
+        // Handle 404 or empty specifically if needed, but general error is fine for now
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch course exams');
+        return response.json();
+    },
+
     startExam: async (examId) => {
         const response = await fetch(API_ENDPOINTS.STUDENT.EXAMS.START(examId), {
-            method: 'POST', // Changed to POST based on user request image
+            method: 'POST', 
             headers: getAuthHeader()
         });
         if (!response.ok) await handleResponseError(response, 'Failed to start exam');
-        return response.json(); // Expected to return questions
+        return response.json(); 
+    },
+
+    getExamQuestions: async (examId) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.EXAMS.QUESTIONS(examId), {
+            headers: getAuthHeader()
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch exam questions');
+        return response.json();
     },
 
     submitExam: async (examData) => {
@@ -74,6 +98,7 @@ export const studentService = {
     accessCourse: async (courseId) => {
         const response = await fetch(API_ENDPOINTS.STUDENT.COURSES.ACCESS(courseId), {
             headers: getAuthHeader()
+        
         });
         if (!response.ok) await handleResponseError(response, 'Failed to access course');
         return response.json();
@@ -104,5 +129,21 @@ export const studentService = {
 
     getVideoStreamUrl: (videoId) => {
         return API_ENDPOINTS.STUDENT.VIDEO_STREAM(videoId);
+    },
+
+    getVideos: async (weekId) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.VIDEOS(weekId), {
+            headers: getAuthHeader()
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch videos');
+        return response.json();
+    },
+
+    getAvailableWeeks: async (id) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.AVAILABLE_WEEKS(id), {
+            headers: getAuthHeader()
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch weeks');
+        return response.json();
     }
 };

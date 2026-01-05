@@ -362,22 +362,21 @@ export const adminService = {
         return response.json();
     },
 
-    createVideo: async (weekId, formData) => {
-        // FormData handles Content-Type automatically
+    createVideo: async (weekId, data) => {
         const response = await fetch(API_ENDPOINTS.ADMIN.VIDEOS(weekId), {
             method: 'POST',
-            headers: { ...getAuthHeader() }, 
-            body: formData
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error('Failed to create video');
         return response.json();
     },
 
-    updateVideo: async (weekId, videoId, formData) => {
+    updateVideo: async (weekId, videoId, data) => {
         const response = await fetch(API_ENDPOINTS.ADMIN.VIDEO_BY_ID(weekId, videoId), {
             method: 'PUT',
-            headers: { ...getAuthHeader() },
-            body: formData
+            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error('Failed to update video');
         return response.status !== 204 ? response.json() : true;

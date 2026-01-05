@@ -134,11 +134,13 @@ export default function StudentDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredCourses.length > 0 ? filteredCourses.map(course => {
                             // Normalize data to handle potential PascalCase/camelCase mismatches
-                            const cName = course.courseName || course.CourseName || course.title;
-                            const cId = course.courseId || course.CourseId || course.id;
-                            const isEnrolled = course.isEnrolled || course.IsEnrolled;
-                            const isActive = course.isActive || course.IsActive;
-                            const gradeId = course.gradeId || course.GradeId;
+                            // Normalize data to handle potential PascalCase/camelCase mismatches
+                            const cName = course.courseName;
+                            const cId = course.courseId;
+                            const isEnrolled = course.isEnrolled;
+                            const isSubscriptionActive = course.isSubscriptionActive;
+                            const isActive = course.isCourseActive;
+                            const gradeId = course.gradeId;
                             
                             // Map gradeId to text for display
                             const getGradeName = (gid) => {
@@ -148,10 +150,10 @@ export default function StudentDashboard() {
                                 return '';
                             };
 
-                            console.log(`Course ${cId}:`, { cName, isEnrolled, isActive, raw: course });
+                            // console.log(`Course ${cId}:`, { cName, isEnrolled, isActive, raw: course });
 
                             return (
-                                <Link key={cId} to={isEnrolled && isActive ? `/student/course/${cId}` : '#'} className={`group ${(!isEnrolled || !isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>
+                                <Link key={cId} to={isActive ? `/student/course/${cId}` : '#'} className={`group ${(!isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>
                                     <Card className="h-full hover:shadow-xl transition-all border-none shadow-md bg-white overflow-hidden relative">
                                         <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 ${isEnrolled ? 'bg-primary/5' : 'bg-gray-100'}`}></div>
                                         <CardContent className="p-8 flex flex-col items-center text-center relative z-10">
@@ -197,9 +199,9 @@ export default function StudentDashboard() {
                                             </div>
                                         )}
 
-                                        {isEnrolled && isActive ? (
+                                        {isActive ? (
                                             <span className="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
-                                                ابدأ المذاكرة <ArrowLeft size={20} />
+                                                {isEnrolled && isSubscriptionActive ? 'ابدأ المذاكرة' : 'عرض الكورس'} <ArrowLeft size={20} />
                                             </span>
                                         ) : (
                                             <Button variant="secondary" className="w-full opacity-50 cursor-not-allowed" disabled>
@@ -226,7 +228,7 @@ function ExamsSection({ exams, loading }) {
     if (loading) return <div className="text-center py-4"><Loader2 className="animate-spin inline-block" /> جاري تحميل الامتحانات...</div>;
     
     if (!exams || exams.length === 0) return null;
-
+console.log(exams)
     return (
         <div className="mb-12">
             <h2 className="text-2xl font-bold text-dark mb-6 flex items-center gap-2">
@@ -245,7 +247,8 @@ function ExamsSection({ exams, loading }) {
                                             <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
                                             <Badge className="bg-blue-100 text-blue-700">منصة</Badge>
                                          }                            </div>
-                            <h3 className="text-xl font-bold text-dark mb-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h3>
+                                         <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
+                            <h5 className=" font-bold text-dark mb-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h5>
                             
                             <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                                 <div className="flex items-center gap-1">

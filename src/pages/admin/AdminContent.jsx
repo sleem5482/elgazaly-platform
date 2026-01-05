@@ -34,7 +34,8 @@ export default function AdminContent() {
     const [newItemEndDate, setNewItemEndDate] = useState('');
     const [newItemImage, setNewItemImage] = useState(null); // File object
     const [newItemImageUrl, setNewItemImageUrl] = useState(''); // Preview URL
-    const [newItemVideoFile, setNewItemVideoFile] = useState(null); // File object for video
+    const [newItemVideoUrl, setNewItemVideoUrl] = useState(''); 
+    const [newItemVisibility, setNewItemVisibility] = useState(1);
     
     // Video specific
     const [newItemDuration, setNewItemDuration] = useState('');
@@ -121,22 +122,25 @@ export default function AdminContent() {
                 toast.success('تم إضافة الأسبوع بنجاح');
                 fetchWeeks();
             } else if (view === 'videos') {
-                 if (!newItemVideoFile) {
-                    toast.warning('الرجاء اختيار ملف الفيديو');
+                 if (!newItemVideoUrl) {
+                    toast.warning('الرجاء إدخال رابط الفيديو');
                     setIsLoading(false);
                     return;
                 }
-                const formData = new FormData();
-                formData.append('Title', newItemName);
-                formData.append('VideoFile', newItemVideoFile);
-                formData.append('Duration', newItemDuration || '00:00:00');
-                formData.append('OrderNumber', newItemOrder);
-                formData.append('VideoType', newItemVideoType);
                 
-                await adminService.createVideo(selectedWeek.id, formData);
+                const data = {
+                    title: newItemName,
+                    videoUrl: newItemVideoUrl,
+                    duration: newItemDuration ? parseFloat(newItemDuration) : 0, // Using number as requested
+                    orderNumber: newItemOrder,
+                    videoType: parseInt(newItemVideoType),
+                    visibility: parseInt(newItemVisibility)
+                };
+                
+                await adminService.createVideo(selectedWeek.id, data);
                 toast.success('تم إضافة الفيديو بنجاح');
                 fetchVideos();
-                setNewItemVideoFile(null);
+                setNewItemVideoUrl('');
             }
             
             // Reset common fields
@@ -193,19 +197,16 @@ export default function AdminContent() {
                 await adminService.updateWeek(selectedMonth.id, id, data);
                 fetchWeeks();
             } else if (type === 'video') {
-                 const formData = new FormData();
-                formData.append('Title', editFormData.title);
-                formData.append('Duration', editFormData.duration);
-                formData.append('OrderNumber', editFormData.orderNumber);
-                formData.append('VideoType', editFormData.videoType);
-                // Only append file if new one selected? UI needs to handle file replacement
-                // For now, assume mainly text update, or if file is supported in update (usually is)
-                // If the user selected a new file during edit (not implemented in UI yet), append it.
-                if (editFormData.newVideoFile) {
-                    formData.append('VideoFile', editFormData.newVideoFile);
-                }
+                 const data = {
+                    title: editFormData.title,
+                    videoUrl: editFormData.videoUrl, // Expecting this to be edited
+                    duration: editFormData.duration ? parseFloat(editFormData.duration) : 0,
+                    orderNumber: editFormData.orderNumber,
+                    videoType: parseInt(editFormData.videoType),
+                    visibility: parseInt(editFormData.visibility || 1)
+                };
 
-                await adminService.updateVideo(selectedWeek.id, id, formData);
+                await adminService.updateVideo(selectedWeek.id, id, data);
                 fetchVideos();
             } else if (type === 'freeVideo') {
                  setFreeVideos(freeVideos.map(v => v.id === id ? editFormData : v));
@@ -371,38 +372,31 @@ export default function AdminContent() {
                     {type === 'video' && (
                         <div className="space-y-4">
                             <Input placeholder="المدة (مثال 10:00)" value={newItemDuration} onChange={(e) => setNewItemDuration(e.target.value)} />
-                             <select className="w-full p-2 border rounded" value={newItemVideoType} onChange={(e) => setNewItemVideoType(e.target.value)}>
-                                <option value={1}>شرح</option>
-                                <option value={2}>حل</option>
-                                <option value={3}>مراجعة</option>
-                            </select>
                             <div>
-                                <label className="block text-sm font-medium mb-2">ملف الفيديو</label>
-                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-primary transition-colors">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <Upload className={`w-8 h-8 mb-2 ${newItemVideoFile ? 'text-primary' : 'text-gray-400'}`} />
-                                        <p className="mb-2 text-sm text-gray-500">
-                                            {newItemVideoFile ? (
-                                                <span className="font-semibold text-primary">{newItemVideoFile.name}</span>
-                                            ) : (
-                                                <>
-                                                    <span className="font-semibold">اضغط لرفع فيديو</span> أو اسحب الملف هنا
-                                                </>
-                                            )}
-                                        </p>
-                                        <p className="text-xs text-gray-500">MP4, WebM (Max 500MB)</p>
-                                    </div>
-                                    <input 
-                                        type="file" 
-                                        accept="video/*" 
-                                        className="hidden" 
-                                        onChange={(e) => {
-                                            if (e.target.files && e.target.files[0]) {
-                                                setNewItemVideoFile(e.target.files[0]);
-                                            }
-                                        }} 
-                                    />
-                                </label>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">رابط الفيديو</label>
+                                <Input 
+                                    placeholder="https://..." 
+                                    value={newItemVideoUrl} 
+                                    onChange={(e) => setNewItemVideoUrl(e.target.value)} 
+                                />
+                            </div>
+
+                             <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">النوع</label>
+                                    <select className="w-full p-2 border rounded" value={newItemVideoType} onChange={(e) => setNewItemVideoType(e.target.value)}>
+                                        <option value={1}>شرح</option>
+                                        <option value={2}>حل</option>
+                                        <option value={3}>مراجعة</option>
+                                    </select>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">الظهور</label>
+                                    <select className="w-full p-2 border rounded" value={newItemVisibility} onChange={(e) => setNewItemVisibility(e.target.value)}>
+                                        <option value={1}>ظاهر</option>
+                                        <option value={2}>مخفي</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -459,40 +453,39 @@ export default function AdminContent() {
                                                 value={editFormData.duration || ''} 
                                                 onChange={(e) => setEditFormData({ ...editFormData, duration: e.target.value })} 
                                              />
-                                             <select 
-                                                className="w-full p-2 border rounded" 
-                                                value={editFormData.videoType || 1} 
-                                                onChange={(e) => setEditFormData({ ...editFormData, videoType: e.target.value })}
-                                             >
-                                                <option value={1}>شرح</option>
-                                                <option value={2}>حل</option>
-                                                <option value={3}>مراجعة</option>
-                                            </select>
-                                            
-                                            <div>
-                                                <label className="block text-sm font-medium mb-1 text-gray-500">تغيير الفيديو (اختياري)</label>
-                                                <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-primary transition-colors">
-                                                    <div className="flex flex-col items-center justify-center pt-2 pb-3">
-                                                        <Upload className={`w-5 h-5 mb-1 ${editFormData.newVideoFile ? 'text-primary' : 'text-gray-400'}`} />
-                                                        <p className="text-xs text-gray-500">
-                                                            {editFormData.newVideoFile ? (
-                                                                <span className="font-semibold text-primary">{editFormData.newVideoFile.name}</span>
-                                                            ) : (
-                                                                <span>اضغط لتغيير الملف</span>
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                    <input 
-                                                        type="file" 
-                                                        accept="video/*" 
-                                                        className="hidden" 
-                                                        onChange={(e) => {
-                                                            if (e.target.files && e.target.files[0]) {
-                                                                setEditFormData({ ...editFormData, newVideoFile: e.target.files[0] });
-                                                            }
-                                                        }} 
-                                                    />
-                                                </label>
+                                             <div>
+                                                <label className="block text-sm font-medium mb-1 text-gray-500">رابط الفيديو</label>
+                                                <Input 
+                                                    placeholder="https://..." 
+                                                    value={editFormData.videoUrl || ''} 
+                                                    onChange={(e) => setEditFormData({ ...editFormData, videoUrl: e.target.value })} 
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-4">
+                                                <div className="flex-1">
+                                                    <label className="block text-sm font-medium mb-1 text-gray-700">النوع</label>
+                                                    <select 
+                                                        className="w-full p-2 border rounded" 
+                                                        value={editFormData.videoType || 1} 
+                                                        onChange={(e) => setEditFormData({ ...editFormData, videoType: e.target.value })}
+                                                    >
+                                                        <option value={1}>شرح</option>
+                                                        <option value={2}>حل</option>
+                                                        <option value={3}>مراجعة</option>
+                                                    </select>
+                                                </div>
+                                                 <div className="flex-1">
+                                                    <label className="block text-sm font-medium mb-1 text-gray-700">الظهور</label>
+                                                    <select 
+                                                        className="w-full p-2 border rounded" 
+                                                        value={editFormData.visibility || 1} 
+                                                        onChange={(e) => setEditFormData({ ...editFormData, visibility: e.target.value })}
+                                                    >
+                                                        <option value={1}>ظاهر</option>
+                                                        <option value={2}>مخفي</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                          </div>
                                      )}
