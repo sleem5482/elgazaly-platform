@@ -139,6 +139,15 @@ export const studentService = {
         return response.json();
     },
 
+    accessVideo: async (videoId) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.ACCESS_VIDEO(videoId), {
+            method: 'POST',
+            headers: getAuthHeader()
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to access video');
+        return response.json();
+    },
+
     getAvailableWeeks: async (id) => {
         const response = await fetch(API_ENDPOINTS.STUDENT.AVAILABLE_WEEKS(id), {
             headers: getAuthHeader()

@@ -132,24 +132,24 @@ export default function AdminCourses() {
     return (
         <div className="flex min-h-screen bg-gray-100">
             <AdminSidebar />
-            <main className="flex-1 p-8 overflow-y-auto">
-                <header className="flex justify-between items-center mb-8">
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-secondary mb-2">إدارة الكورسات</h1>
-                        <p className="text-gray-500">إضافة وتعديل وحذف الكورسات الدراسية</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-2">إدارة الكورسات</h1>
+                        <p className="text-gray-500 text-sm md:text-base">إضافة وتعديل وحذف الكورسات الدراسية</p>
                     </div>
-                    <Button onClick={() => setIsAdding(true)} className="gap-2 shadow-lg">
+                    <Button onClick={() => setIsAdding(true)} className="gap-2 shadow-lg w-full md:w-auto justify-center">
                         <Plus size={20} />
                         إضافة كورس جديد
                     </Button>
                 </header>
 
                 {/* Search */}
-                <div className="mb-6 relative max-w-md">
+                <div className="mb-6 relative w-full md:max-w-md">
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <Input
                         placeholder="بحث عن كورس..."
-                        className="pr-10"
+                        className="pr-10 w-full"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -158,7 +158,7 @@ export default function AdminCourses() {
                 {/* Add Form */}
                 {isAdding && (
                     <Card className="mb-8 border-primary/20 bg-primary/5 animate-in slide-in-from-top-4">
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 md:p-6">
                             <h3 className="text-lg font-bold mb-4 text-primary">{isEditing ? 'تعديل الكورس' : 'بيانات الكورس الجديد'}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
@@ -169,7 +169,7 @@ export default function AdminCourses() {
                                 <div className="space-y-1">
                                     <label className="text-sm text-gray-500">الصف الدراسي</label>
                                     <select
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
                                         value={newCourse.gradeId}
                                         onChange={(e) => setNewCourse({ ...newCourse, gradeId: e.target.value })}
                                     >
@@ -181,7 +181,7 @@ export default function AdminCourses() {
                                 <div className="space-y-1">
                                     <label className="text-sm text-gray-500">القسم</label>
                                     <select
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
                                         value={newCourse.sectionId}
                                         onChange={(e) => setNewCourse({ ...newCourse, sectionId: e.target.value })}
                                     >
@@ -209,28 +209,28 @@ export default function AdminCourses() {
                     {isLoading && !isAdding && <p className="text-center text-gray-500">جاري التحميل...</p>}
                     {!isLoading && filteredCourses.map(course => (
                         <Card key={course.id} className="hover:shadow-md transition-shadow group">
-                            <CardContent className="p-6 flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-xl font-bold text-secondary mb-1 group-hover:text-primary transition-colors">{course.name || course.title}</h3>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <p className="text-gray-500 text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded">{grades.find(g => g.id === course.gradeId)?.title}</p>
+                            <CardContent className="p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                <div className="w-full md:w-auto">
+                                    <h3 className="text-lg md:text-xl font-bold text-secondary mb-2 group-hover:text-primary transition-colors break-words">{course.name || course.title}</h3>
+                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                        <p className="text-gray-500 text-xs md:text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded">{grades.find(g => g.id === course.gradeId)?.title}</p>
                                         {course.sectionId && (
-                                             <p className="text-blue-500 text-sm font-medium bg-blue-50 inline-block px-2 py-1 rounded">
+                                             <p className="text-blue-500 text-xs md:text-sm font-medium bg-blue-50 inline-block px-2 py-1 rounded">
                                                 {sections.find(s => s.id === course.sectionId)?.name}
                                              </p>
                                         )}
                                         {/* <p className="text-primary text-sm font-bold bg-primary/10 inline-block px-2 py-1 rounded">{course.price || 'مجاني'}</p> */}
                                     </div>
-                                    <p className="text-gray-400 text-sm">{course.description}</p>
+                                    <p className="text-gray-400 text-sm break-words">{course.description}</p>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 self-end md:self-center w-full md:w-auto justify-end">
                                      <Button variant="ghost" size="sm" 
                                         className={course.isActive ? "text-green-600 bg-green-50" : "text-gray-400 bg-gray-50"}
                                         onClick={() => handleToggleActive(course.id)}
                                      >
                                         {course.isActive ? 'نشط' : 'غير نشط'}
                                      </Button>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50" onClick={() => handleEditClick(course)}>
                                             <Edit size={18} />
                                         </Button>

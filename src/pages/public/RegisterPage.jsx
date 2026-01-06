@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useData } from '../../context/DataContext';
+// import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -18,7 +18,12 @@ export default function RegisterPage() {
         studentType: '2' // 1 = Center, 2 = Online
     });
     const { register } = useAuth();
-    const { grades } = useData();
+    // const { grades } = useData(); // Removed fetching grades dynamically
+    const grades = [
+        { id: 1, title: 'الصف الأول الثانوي' },
+        { id: 2, title: 'الصف الثاني الثانوي' },
+        { id: 3, title: 'الصف الثالث الثانوي' }
+    ];
     const { error: toastError, success: toastSuccess } = useToast();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
@@ -86,8 +91,9 @@ export default function RegisterPage() {
                 password: formData.password
             };
 
-            console.log('Registration payload:', JSON.stringify(apiData, null, 2));
+            
             const data = await register(apiData);
+            console.log("data", data);
             
             if (data && data.message) {
                 toastSuccess(data.message);

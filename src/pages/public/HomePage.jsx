@@ -1,14 +1,38 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../../components/ui/Button';
 import Footer from '../../components/layout/Footer';
-import FreeVideos from '../../components/public/FreeVideos';
-import FreeExams from '../../components/public/FreeExams';
-import { useNavigate } from 'react-router-dom';
-import { PlayCircle, UserPlus, ArrowLeft, Star, Shield, Clock, CheckCircle, Users, BookOpen, Award, Sparkles, TrendingUp } from 'lucide-react';
+import CoursesList from '../../components/student/CoursesList';
+import { studentService } from '../../services/studentService';
+import { useAuth } from '../../context/AuthContext';
+import { PlayCircle, UserPlus, ArrowLeft, Star, Shield, Clock, CheckCircle, Users, BookOpen, Award, Sparkles, TrendingUp, Lock } from 'lucide-react';
 
 export default function HomePage() {
-    const navigate=useNavigate()
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [courses, setCourses] = useState([]);
+    const [loadingCourses, setLoadingCourses] = useState(true);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            if (!user) {
+                setLoadingCourses(false);
+                return;
+            }
+            try {
+                const data = await studentService.getMyCourses();
+                if (Array.isArray(data)) {
+                    setCourses(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch courses", err);
+            } finally {
+                setLoadingCourses(false);
+            }
+        };
+        fetchCourses();
+    }, [user]);
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
             {/* Animated Background Shapes */}
@@ -326,81 +350,32 @@ export default function HomePage() {
                             <p className="text-xl text-gray-500 max-w-2xl mx-auto">اختر الكورس المناسب لصفك الدراسي وابدأ رحلة التفوق</p>
                         </motion.div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                            {[
-                                {
-                                    grade: "الصف الأول الثانوي",
-                                    price: 500,
-                                    color: "from-blue-500 to-cyan-500",
-                                    features: ["شرح كامل للمنهج", "امتحانات دورية", "متابعة مستمرة"]
-                                },
-                                {
-                                    grade: "الصف الثاني الثانوي",
-                                    price: 600,
-                                    color: "from-purple-500 to-pink-500",
-                                    features: ["شرح تفصيلي", "تدريبات مكثفة", "مراجعات شاملة"]
-                                },
-                                {
-                                    grade: "الصف الثالث الثانوي",
-                                    price: 800,
-                                    color: "from-orange-500 to-red-500",
-                                    features: ["تحضير للثانوية", "امتحانات نموذجية", "دعم مباشر"]
-                                }
-                            ].map((course, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                    whileHover={{ y: -10, scale: 1.02 }}
-                                    className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden group"
+                        {/* Conditional Rendering for Courses */}
+                        {!user ? (
+                            <div className="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 text-center p-8">
+                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Lock size={32} className="text-gray-400" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-2">تسجيل الدخول مطلوب</h3>
+                                <p className="text-gray-500 mb-8">يجب عليك تسجيل الدخول أولاً لعرض الكورسات المتاحة والاشتراك فيها.</p>
+                                <Button 
+                                    onClick={() => navigate('/login')}
+                                    className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl shadow-lg transition-all font-bold text-lg"
                                 >
-                                    {/* Header with Gradient */}
-                                    <div className={`bg-gradient-to-r ${course.color} p-6 text-white relative overflow-hidden`}>
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
-                                        <div className="relative z-10">
-                                            <BookOpen size={32} className="mb-3" strokeWidth={2} />
-                                            <h3 className="text-2xl font-black mb-2">{course.grade}</h3>
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-4xl font-black">{course.price}</span>
-                                                <span className="text-lg opacity-90">جنيه</span>
-                                            </div>
-                                            <p className="text-sm opacity-90 mt-1">دفعة واحدة فقط</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Features */}
-                                    <div className="p-6">
-                                        <ul className="space-y-3 mb-6">
-                                            {course.features.map((feature, i) => (
-                                                <li key={i} className="flex items-center gap-3 text-gray-700">
-                                                    <div className={`w-6 h-6 bg-gradient-to-br ${course.color} rounded-full flex items-center justify-center flex-shrink-0`}>
-                                                        <CheckCircle size={14} className="text-white" strokeWidth={3} />
-                                                    </div>
-                                                    <span className="font-medium">{feature}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-
-                                        <Link to="/register">
-                                            <Button className={`w-full bg-gradient-to-r ${course.color} hover:opacity-90 text-white py-3 rounded-xl shadow-lg transition-all font-bold group-hover:shadow-xl`}>
-                                                اشترك الآن
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
+                                    تسجيل الدخول لعرض الكورسات
+                                </Button>
+                            </div>
+                        ) : loadingCourses ? (
+                            <div className="text-center py-12">جاري تحميل الكورسات...</div>
+                        ) : (
+                            <CoursesList courses={courses} />
+                        )}
                     </div>
                 </div>
 
-                {/* Free Exams Section */}
-                <FreeExams />
 
-                {/* Free Videos Section */}
-                <FreeVideos />
+                
+            
 
                 {/* CTA Section with Enhanced Design */}
                 <div className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 relative overflow-hidden">

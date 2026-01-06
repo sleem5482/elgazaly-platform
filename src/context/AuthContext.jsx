@@ -30,12 +30,18 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (identifier, password, loginType) => {
-        let responseText=""
+        // let responseText=""
         try {
-            // Prepare payload according to API requirements
-            // API expects: loginType (Online, Center, Admin), identifier (phone number, code, or email), password
+            // Map loginType string to integer enum
+            // Center = 1, Online = 2, Admin = 3
+            const loginTypeMap = {
+                'Center': 1,
+                'Online': 2,
+                'Admin': 3
+            };
+
             const payload = {
-                loginType: loginType, // Online, Center, or Admin
+                loginType: loginTypeMap[loginType] || 2, // Default to Online (2)
                 identifier: identifier.trim(),
                 password: password
             };

@@ -258,38 +258,35 @@ export default function AdminContent() {
             {isLoading && <p>جاري التحميل...</p>}
             {!isLoading && courses.map(c => (
                 <Card key={c.id} className="cursor-pointer hover:border-primary transition-colors group" onClick={() => { setSelectedCourse(c); setView('months'); }}>
-                    <CardContent className="p-6 flex items-center justify-between">
+                    <CardContent className="p-4 md:p-6 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-primary group-hover:text-white transition-colors">
+                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                                 <Folder size={24} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors">{c.name || c.title}</h3>
-                                {/* <p className="text-gray-500 text-sm">{months.filter(m => m.courseId === c.id).length} شهور</p> */ /* Cannot count efficiently without fetching all, removing count */}
+                                <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors break-all">{c.name || c.title}</h3>
                             </div>
                         </div>
-                        <ChevronLeft className="text-gray-400 group-hover:text-primary transition-colors" />
+                        <ChevronLeft className="text-gray-400 group-hover:text-primary transition-colors shrink-0" />
                     </CardContent>
                 </Card>
             ))}
         </div>
     );
 
-    // Reuse Free Content Render (Assumed unchanged for now, just hook up edit/delete wraps)
     const renderFreeContent = () => (
         <div className="space-y-6">
-            <div className="flex gap-4 mb-6">
-                <Button variant={freeContentView === 'videos' ? 'primary' : 'outline'} onClick={() => setFreeContentView('videos')} className="flex-1">
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <Button variant={freeContentView === 'videos' ? 'primary' : 'outline'} onClick={() => setFreeContentView('videos')} className="flex-1 justify-center">
                     <PlayCircle size={20} className="ml-2" /> فيديوهات مجانية
                 </Button>
-                <Button variant={freeContentView === 'exams' ? 'primary' : 'outline'} onClick={() => setFreeContentView('exams')} className="flex-1">
+                <Button variant={freeContentView === 'exams' ? 'primary' : 'outline'} onClick={() => setFreeContentView('exams')} className="flex-1 justify-center">
                     <FileQuestion size={20} className="ml-2" /> امتحانات مجانية
                 </Button>
             </div>
-            {/* Add/Edit/List for Free Content - omitted for brevity in replacement, assuming pasted back or similar structure. 
-                Wait, replacing full file, I need to include it. */}
+            
              <Card className="bg-white border-none shadow-sm">
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                     <h3 className="font-bold text-lg mb-4">إضافة {freeContentView === 'videos' ? 'فيديو' : 'امتحان'} جديد</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <Input placeholder="العنوان" value={newFreeItem.title} onChange={(e) => setNewFreeItem({ ...newFreeItem, title: e.target.value })} />
@@ -305,20 +302,20 @@ export default function AdminContent() {
                     <Button onClick={handleAddFreeItem} className="w-full"><Plus size={20} className="ml-2" /> إضافة</Button>
                 </CardContent>
             </Card>
-            {/* List Free Items */}
+
             <div className="space-y-4">
                 {(freeContentView === 'videos' ? freeVideos : freeExams).map(item => (
                     <Card key={item.id} className="bg-white border-none shadow-sm">
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 md:p-6">
                             {editingItem?.id === item.id ? (
                                 <div className="space-y-4">
                                      <Input value={editFormData.title || ''} onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })} />
                                      <div className="flex gap-2"><Button onClick={handleSaveEdit}>حفظ</Button><Button variant="ghost" onClick={() => setEditingItem(null)}>إلغاء</Button></div>
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-between">
-                                    <h3>{item.title}</h3>
-                                    <div className="flex gap-2">
+                                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                    <h3 className="break-all">{item.title}</h3>
+                                    <div className="flex gap-2 w-full md:w-auto justify-end">
                                         <Button variant="ghost" size="icon" className="text-blue-500" onClick={() => handleEdit(item, freeContentView === 'videos' ? 'freeVideo' : 'freeExam')}><Edit size={18} /></Button>
                                         <Button variant="ghost" size="icon" className="text-red-500" onClick={() => handleDelete(item.id, freeContentView === 'videos' ? 'freeVideo' : 'freeExam')}><Trash2 size={18} /></Button>
                                     </div>
@@ -333,7 +330,7 @@ export default function AdminContent() {
 
     const renderList = (items, type, Icon, nextView, onSelect) => (
         <div className="space-y-6">
-            <div className="flex flex-col gap-4 bg-white p-6 rounded-xl shadow-sm">
+            <div className="flex flex-col gap-4 bg-white p-4 md:p-6 rounded-xl shadow-sm">
                 <h3 className="font-bold text-lg">إضافة {type === 'month' ? 'شهر' : type === 'week' ? 'أسبوع' : 'فيديو'} جديد</h3>
                 <div className="flex flex-col gap-4">
                     <Input
@@ -349,7 +346,7 @@ export default function AdminContent() {
                     />
 
                     {type === 'month' && (
-                        <div className="flex gap-4">
+                        <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
                                 <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
                                 <Input
@@ -381,7 +378,7 @@ export default function AdminContent() {
                                 />
                             </div>
 
-                             <div className="flex gap-4">
+                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium mb-1 text-gray-700">النوع</label>
                                     <select className="w-full p-2 border rounded" value={newItemVideoType} onChange={(e) => setNewItemVideoType(e.target.value)}>
@@ -401,7 +398,7 @@ export default function AdminContent() {
                         </div>
                     )}
                     
-                    <Button onClick={handleAddItem} className="gap-2" disabled={isLoading}>
+                    <Button onClick={handleAddItem} className="gap-2 w-full md:w-auto self-end" disabled={isLoading}>
                         <Plus size={20} />
                         {isLoading ? 'جاري الإضافة...' : 'إضافة'}
                     </Button>
@@ -412,7 +409,7 @@ export default function AdminContent() {
                 {isLoading && !items.length && <p>جاري التحميل...</p>}
                 {items.map(item => (
                     <Card key={item.id} className="transition-colors group border-none shadow-md bg-white">
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 md:p-6">
                             {editingItem?.id === item.id ? (
                                 <div className="space-y-4">
                                     <Input
@@ -427,7 +424,7 @@ export default function AdminContent() {
                                         placeholder="الترتيب"
                                     />
                                     {type === 'month' && (
-                                        <div className="flex gap-4">
+                                        <div className="flex flex-col md:flex-row gap-4">
                                            <div className="flex-1">
                                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
                                                <Input
@@ -462,7 +459,7 @@ export default function AdminContent() {
                                                 />
                                             </div>
 
-                                            <div className="flex gap-4">
+                                            <div className="flex flex-col md:flex-row gap-4">
                                                 <div className="flex-1">
                                                     <label className="block text-sm font-medium mb-1 text-gray-700">النوع</label>
                                                     <select 
@@ -489,36 +486,36 @@ export default function AdminContent() {
                                             </div>
                                          </div>
                                      )}
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 justify-end">
                                         <Button onClick={handleSaveEdit} className="gap-2"><Save size={18} /> حفظ</Button>
                                         <Button variant="ghost" onClick={() => setEditingItem(null)} className="gap-2"><X size={18} /> إلغاء</Button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                     <div
-                                        className={`flex items-center gap-4 flex-1 ${nextView || type === 'video' ? 'cursor-pointer' : ''}`}
+                                        className={`flex items-center gap-4 flex-1 w-full ${nextView || type === 'video' ? 'cursor-pointer' : ''}`}
                                         onClick={() => {
                                             if (nextView) onSelect(item);
                                             else if (type === 'video') setSelectedVideo(item);
                                         }}
                                     >
-                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
                                             <Icon size={20} />
                                         </div>
-                                        <div>
-                                            <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors">{item.monthName || item.title || item.name}</h3>
+                                        <div className="min-w-0">
+                                            <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors break-words">{item.monthName || item.title || item.name}</h3>
                                             {item.orderNumber && <p className="text-xs text-gray-400">ترتيب: {item.orderNumber}</p>}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 w-full md:w-auto justify-end">
                                         <Button variant="ghost" size="icon" className="text-blue-500 hover:bg-blue-50" onClick={(e) => { e.stopPropagation(); handleEdit(item, type); }}>
                                             <Edit size={18} />
                                         </Button>
                                         <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDelete(item.id, type); }}>
                                             <Trash2 size={18} />
                                         </Button>
-                                        {nextView && <ChevronLeft className="text-gray-400 group-hover:text-primary transition-colors" />}
+                                        {nextView && <ChevronLeft className="text-gray-400 group-hover:text-primary transition-colors shrink-0" />}
                                     </div>
                                 </div>
                             )}
@@ -533,11 +530,11 @@ export default function AdminContent() {
     return (
         <div className="flex min-h-screen bg-gray-100">
             <AdminSidebar />
-            <main className="flex-1 p-8 overflow-y-auto">
-                <header className="mb-8 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-3xl font-bold text-secondary mb-2">إدارة المحتوى</h1>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 bg-white p-3 rounded-lg shadow-sm w-fit">
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+                <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="w-full md:w-auto">
+                        <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-2">إدارة المحتوى</h1>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 bg-white p-3 rounded-lg shadow-sm w-full md:w-fit">
                             <span className={view === 'courses' ? 'font-bold text-primary' : 'cursor-pointer hover:text-primary'} onClick={() => { setView('courses'); setSelectedCourse(null); }}>الكورسات</span>
                             {selectedCourse && (
                                 <>
@@ -560,7 +557,7 @@ export default function AdminContent() {
                         </div>
                     </div>
                     {/* Free content toggle - simplifying */}
-                    <Button variant={view === 'free' ? 'primary' : 'outline'} onClick={() => setView(view === 'free' ? 'courses' : 'free')}>
+                    <Button variant={view === 'free' ? 'primary' : 'outline'} onClick={() => setView(view === 'free' ? 'courses' : 'free')} className="w-full md:w-auto">
                         {view === 'free' ? 'إدارة الكورسات' : 'المحتوى المجاني'}
                     </Button>
                 </header>

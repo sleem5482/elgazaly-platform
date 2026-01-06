@@ -76,6 +76,7 @@ export const API_ENDPOINTS = {
             SUBMIT: `${API_BASE_URL}/student/exams/submit`
         },
         VIDEOS: (weekId) => `${API_BASE_URL}/student/course-weeks/${weekId}/videos`,
+        ACCESS_VIDEO: (id) => `${API_BASE_URL}/student/videos/${id}/access`,
         AVAILABLE_WEEKS: (id) => `${API_BASE_URL}/student/courses/AvailableWEEKS/${id}`
     }
 };

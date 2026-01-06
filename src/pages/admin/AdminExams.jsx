@@ -158,7 +158,7 @@ export default function AdminExams() {
         try {
             await adminService.openExam(exam.id);
             success('تم فتح الاختبار للطلاب');
-            fetchExams(); // Refresh to update status if backend changes it
+            fetchExams(); 
         } catch (err) { showError('فشل فتح الاختبار'); }
     };
 
@@ -249,10 +249,10 @@ export default function AdminExams() {
 
     const renderExamList = () => (
         <div className="space-y-4">
-             <div className="flex justify-between items-center mb-6">
-                <div className="flex gap-4 items-center">
+             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div className="flex w-full md:w-auto gap-4 items-center">
                     <select 
-                        className="px-4 py-2 border rounded-lg bg-white"
+                        className="w-full md:w-auto px-4 py-2 border rounded-lg bg-white"
                         value={selectedCourseId}
                         onChange={(e) => setSelectedCourseId(e.target.value)}
                     >
@@ -266,7 +266,7 @@ export default function AdminExams() {
                     setEditingExam(null);
                     setExamFormData({ title: '', examDate: '', accessType: 1, duration: 30 });
                     setView('form');
-                }} className="gap-2">
+                }} className="w-full md:w-auto gap-2">
                     <Plus size={20} /> إضافة اختبار
                 </Button>
             </div>
@@ -275,23 +275,23 @@ export default function AdminExams() {
             
             {exams.map(exam => (
                 <Card key={exam.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${exam.accessType === 1 ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <CardContent className="p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${exam.accessType === 1 ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
                                 <FileText size={24} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-secondary">{exam.title}</h3>
-                                <div className="flex gap-2 text-sm text-gray-500 mt-1">
+                                <h3 className="text-xl font-bold text-secondary break-all">{exam.title}</h3>
+                                <div className="flex flex-wrap gap-2 text-sm text-gray-500 mt-1">
                                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${exam.accessType === 1 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                        {exam.accessType === "Free" ? 'مجاني' : 'مدفوع (منصة)'}
+                                        {exam.accessType === "Free" || exam.accessType === 1 ? 'مجاني' : 'مدفوع (منصة)'}
                                     </span>
                                     <span>• {exam.totalMarks} درجة</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => handleManageQuestions(exam)} className="text-purple-600 bg-purple-50">
+                        <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+                            <Button variant="ghost" size="sm" onClick={() => handleManageQuestions(exam)} className="text-purple-600 bg-purple-50 flex-1 md:flex-none justify-center">
                                 الأسئلة
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => handleOpenExam(exam)} title="فتح الاختبار">
@@ -429,10 +429,10 @@ export default function AdminExams() {
             <div className="space-y-4">
                 {questions.map((q, idx) => (
                     <Card key={q.id}>
-                        <CardContent className="p-4 flex justify-between items-start">
-                            <div>
+                        <CardContent className="p-4 flex flex-col md:flex-row justify-between items-start gap-4">
+                            <div className="w-full">
                                 <p className="font-bold text-lg mb-2"><span className="text-primary">S{idx+1}:</span> {q.questionText}</p>
-                                <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-600">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-600">
                                     <span className={q.correctOption === 'optionA' ? 'text-green-600 font-bold' : ''}>A: {q.optionA}</span>
                                     <span className={q.correctOption === 'optionB' ? 'text-green-600 font-bold' : ''}>B: {q.optionB}</span>
                                     <span className={q.correctOption === 'optionC' ? 'text-green-600 font-bold' : ''}>C: {q.optionC}</span>
@@ -440,7 +440,7 @@ export default function AdminExams() {
                                 </div>
                                 <p className="text-xs text-gray-400 mt-2">Marks: {q.marks}</p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 self-end md:self-start">
                                 <Button variant="ghost" size="icon" onClick={() => {
                                     setEditingQuestion(q);
                                     setQuestionFormData({
@@ -484,23 +484,23 @@ export default function AdminExams() {
                     <table className="w-full text-right">
                         <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                             <tr>
-                                <th className="p-4">اسم الطالب</th>
-                                <th className="p-4">الدرجة</th>
-                                <th className="p-4">وقت الأداء</th>
-                                <th className="p-4">وقت الانتهاء</th>
+                                <th className="p-4 whitespace-nowrap">اسم الطالب</th>
+                                <th className="p-4 whitespace-nowrap">الدرجة</th>
+                                <th className="p-4 whitespace-nowrap">وقت الأداء</th>
+                                <th className="p-4 whitespace-nowrap">وقت الانتهاء</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {examResults.length > 0 ? examResults.map((result, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 font-bold">{result.studentName}</td>
-                                    <td className="p-4">
+                                    <td className="p-4 font-bold whitespace-nowrap">{result.studentName}</td>
+                                    <td className="p-4 whitespace-nowrap">
                                         <span className={`px-2 py-1 rounded text-sm font-bold ${result.score >= (selectedExamForResults?.totalMarks / 2) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                             {result.score} / {selectedExamForResults?.totalMarks}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-gray-600" dir="ltr">{new Date(result.takenAt).toLocaleString('ar-EG',{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}</td>
-                                    <td className="p-4 text-gray-600 w-1/4" dir="ltr">
+                                    <td className="p-4 text-gray-600 whitespace-nowrap" dir="ltr">{new Date(result.takenAt).toLocaleString('ar-EG',{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}</td>
+                                    <td className="p-4 text-gray-600 w-1/4 whitespace-nowrap" dir="ltr">
                                        {new Date(result.finishedAt).toLocaleString('ar-EG',{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}
                                     </td>
                                 </tr>

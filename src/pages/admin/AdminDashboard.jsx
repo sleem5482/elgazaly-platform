@@ -86,7 +86,7 @@ export default function AdminDashboard() {
                     ))}
                 </div>
 
-                {/* Charts */}
+                {/* Charts
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <Card className="p-6">
                         <h3 className="text-xl font-bold mb-6 text-secondary">نمو الطلاب</h3>
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
                             ))}
                         </div>
                     </Card>
-                </div>
+                </div> */}
             </main>
         </div>
     );

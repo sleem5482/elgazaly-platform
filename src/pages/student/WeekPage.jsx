@@ -29,6 +29,7 @@ export default function WeekPage() {
             try {
                 // Fetch videos for this week
                 const data = await studentService.getVideos(weekId);
+                console.log(data);
                 if (Array.isArray(data)) {
                     setWeekLessons(data);
                 } else {
@@ -96,7 +97,7 @@ export default function WeekPage() {
                                 const lessonWithContext = { ...lesson, weekId: weekId };
 
                                 return (
-                                    <Link key={lesson.id} to={`/lesson/${lesson.orderNumber}`} state={{ lessonData: lessonWithContext }}>
+                                    <Link key={lesson.id} to={`/student/lesson/${lesson.id}`} state={{ lessonData: lessonWithContext }}>
                                         <Card className={`hover:shadow-md transition-all group border-l-4 relative overflow-hidden ${isLocked ? 'border-l-gray-300 opacity-90' : 'border-l-primary'}`}>
                                             <div className="absolute top-4 left-4 text-gray-200 font-bold text-6xl opacity-20 pointer-events-none">
                                                 {String(idx + 1).padStart(2, '0')}
