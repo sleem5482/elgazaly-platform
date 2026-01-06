@@ -40,8 +40,12 @@ export default function LessonPage() {
     }
 
     return videoId
-      ? `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1&fs=1&playsinline=1`
+      ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1&fs=1`
       : '';
+  };
+  
+  const isYoutubeUrl = (url) => {
+    return url && (url.includes('youtu.be/') || url.includes('youtube.com/'));
   };
 
   useEffect(() => {
@@ -50,6 +54,7 @@ export default function LessonPage() {
         setLoading(true);
         const data = await studentService.accessVideo(lessonId);
         setVideoData(data);
+        console.log("_____________",data)
       } catch {
         setError('لا يمكنك الوصول إلى هذا المحتوى');
       } finally {
@@ -60,7 +65,7 @@ export default function LessonPage() {
     fetchVideoAccess();
   }, [lessonId]);
 
-  const videoSrc = getEmbedUrl(videoData?.videoUrl);
+  // const videoSrc = getEmbedUrl(videoData?.videoUrl); // Logic moved to render
 
   return (
     <div className={cn(
@@ -113,27 +118,39 @@ export default function LessonPage() {
                   </div>
                 )}
 
-                {videoSrc && (
+                {videoData?.videoUrl && (
                   <>
                     {/* WATERMARK */}
-                    <div className="absolute inset-0 pointer-events-none opacity-20 select-none z-10">
+                    <div className="absolute inset-0 pointer-events-none opacity-20 select-none z-10 hidden md:block">
                       <div className="w-full h-full flex flex-wrap items-center justify-center gap-24 rotate-[-15deg]">
                         {Array.from({ length: 10 }).map((_, i) => (
                           <span key={i} className="text-white font-bold">
-                            {user?.name} - {user?.email}
+                            {user?.name} 
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <iframe
-                      src={videoSrc}
-                      title="Secure Video"
-                      className="w-full h-full"
-                      allow="fullscreen"
-                      allowFullScreen
-                      disablePictureInPicture
-                    />
+                    {isYoutubeUrl(videoData.videoUrl) ? (
+                      <iframe
+                        src={`${getEmbedUrl(videoData.videoUrl)}&mute=0`}
+                        title="Video Player"
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={videoData.videoUrl}
+                        controls
+                        controlsList="nodownload"
+                        className="w-full h-full"
+                        onContextMenu={(e) => e.preventDefault()}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
                   </>
                 )}
 

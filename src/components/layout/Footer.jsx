@@ -152,9 +152,7 @@ export default function Footer() {
                         >
                             <Code size={16} className="text-secondary" />
                             <span className="text-gray-300">تم التطوير بواسطة</span>
-                            <span className="font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">محمد طارق</span>
-                            <span className="text-gray-500">|</span>
-                            <span dir="ltr" className="font-mono text-xs text-gray-400">01284621015</span>
+                            <span className="font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Switch Code</span>
                         </motion.div>
                     </div>
                 </div>

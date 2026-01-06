@@ -34,9 +34,9 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 function App() {
   useEffect(() => {
     // Disable right click
-    // const handleContextMenu = (e) => {
-    //   e.preventDefault();
-    // };
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
 
     // Disable keyboard shortcuts
     const handleKeyDown = (e) => {
@@ -54,11 +54,11 @@ function App() {
       }
     };
 
-    // document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      // document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);

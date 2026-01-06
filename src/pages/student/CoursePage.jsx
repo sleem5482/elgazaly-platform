@@ -19,6 +19,7 @@ export default function CoursePage() {
                 // Use getAvailableMonths to show ALL months (subscribed and unsubscribed)
                 const data = await studentService.getAvailableMonths(courseId);
                 setMonths(data);
+                console.log("sleem check",data)
             } catch (err) {
                 console.error(err);
                 setError('فشل تحميل محتوى الكورس');
