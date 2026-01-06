@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
-import defaultFreeVideos from '../data/freeVideos.json';
+import freeVideosData from '../data/freeVideos.json';
 
 const DataContext = createContext();
 
@@ -50,16 +50,7 @@ export function DataProvider({ children }) {
 
     const [freeVideos, setFreeVideos] = useState(() => {
         const stored = localStorage.getItem('freeVideos');
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                // If local storage is empty array (maybe cleared), recover from default
-                return parsed.length > 0 ? parsed : defaultFreeVideos;
-            } catch (e) {
-                return defaultFreeVideos;
-            }
-        }
-        return defaultFreeVideos;
+        return stored ? JSON.parse(stored) : freeVideosData;
     });
 
     const [freeExams, setFreeExams] = useState(() => {
@@ -180,7 +171,7 @@ export function DataProvider({ children }) {
         lessons, setLessons,
         exams, setExams,
         subscriptions, subscribe, checkSubscription,
-        freeVideos, setFreeVideos,
+          freeVideos, setFreeVideos,
         freeExams, setFreeExams
     };
 
