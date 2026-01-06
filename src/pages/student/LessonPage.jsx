@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/layout/Sidebar';
@@ -10,8 +10,8 @@ import {
   ChevronRight,
   Lock,
   Star,
-  Maximize,
-  Minimize
+  Expand,
+  Shrink
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { studentService } from '../../services/studentService';
@@ -20,12 +20,11 @@ export default function LessonPage() {
   const { lessonId } = useParams();
   const location = useLocation();
   const { user } = useAuth();
-
-  const [activeTab, setActiveTab] = useState('video');
+  const containerRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [videoData, setVideoData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFocusMode, setIsFocusMode] = useState(false);
 
   const stateLesson = location.state?.lessonData;
 
@@ -40,7 +39,7 @@ export default function LessonPage() {
     }
 
     return videoId
-      ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1&fs=1`
+      ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1&fs=0`
       : '';
   };
   
@@ -65,17 +64,22 @@ export default function LessonPage() {
     fetchVideoAccess();
   }, [lessonId]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   // const videoSrc = getEmbedUrl(videoData?.videoUrl); // Logic moved to render
 
   return (
-    <div className={cn(
-      "flex min-h-screen bg-light",
-      isFocusMode && "bg-black"
-    )}>
-      {!isFocusMode && <Sidebar />}
+    <div className="flex min-h-screen bg-light">
+      {/* <Sidebar />  Removed based on user request */}
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        {!isFocusMode && (
           <header className="bg-white border-b p-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link to="/dashboard">
@@ -88,21 +92,19 @@ export default function LessonPage() {
                 <p className="text-xs text-gray-500">{stateLesson?.weekTitle}</p>
               </div>
             </div>
-          </header>
-        )}
+      </header>
 
         <div className="flex-1 overflow-auto p-4">
-          <div className={cn(
-            "mx-auto",
-            isFocusMode ? "max-w-full" : "max-w-6xl grid lg:grid-cols-3 gap-6"
-          )}>
+          <div className="mx-auto max-w-5xl">
 
             {/* VIDEO */}
-            <div className={cn(
-              isFocusMode ? "col-span-full" : "lg:col-span-2"
-            )}>
+            <div className="col-span-full">
               <div
-                className="relative aspect-video bg-black rounded-xl overflow-hidden"
+                ref={containerRef}
+                className={cn(
+                  "relative bg-black overflow-hidden group",
+                  isFullscreen ? "w-full h-full flex items-center justify-center" : "aspect-video rounded-xl"
+                )}
                 onContextMenu={(e) => e.preventDefault()}
               >
                 {loading && (
@@ -154,20 +156,26 @@ export default function LessonPage() {
                   </>
                 )}
 
-                {/* Focus Button */}
+
+                {/* FullScreen Button */}
                 <button
-                  onClick={() => setIsFocusMode(!isFocusMode)}
-                  className="absolute top-4 right-4 bg-black/60 text-white p-2 rounded-lg z-20"
+                  onClick={() => {
+                    if (!document.fullscreenElement) {
+                      containerRef.current?.requestFullscreen();
+                    } else {
+                      document.exitFullscreen();
+                    }
+                  }}
+                  className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  {isFocusMode ? <Minimize /> : <Maximize />}
+                  {isFullscreen ? <Shrink size={20} /> : <Expand size={20} />}
                 </button>
               </div>
 
             
             </div>
 
-            {!isFocusMode && (
-              <div className="space-y-6">
+            <div className="space-y-6 mt-6">
                 <div className="bg-gradient-to-br from-secondary to-orange-600 p-6 rounded-2xl text-white">
                   <Star />
                   <p className="mt-2">
@@ -175,7 +183,6 @@ export default function LessonPage() {
                   </p>
                 </div>
               </div>
-            )}
 
           </div>
         </div>
