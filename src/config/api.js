@@ -1,7 +1,7 @@
 // API Configuration
 // Use environment variable for direct API calls (bypassing Netlify proxy)
-export const API_BASE_URL = 'https://elghazaly.runasp.net/api';
-export const MEDIA_BASE_URL = 'https://elghazaly.runasp.net';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL;
 
 // API Endpoints
 export const API_ENDPOINTS = {

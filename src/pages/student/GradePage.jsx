@@ -15,6 +15,7 @@ export default function GradePage() {
         const fetchCourses = async () => {
             try {
                 const data = await studentService.getMyCourses();
+                console.log("show",data)
                 setCourses(data);
             } catch (error) {
                 console.error('Failed to fetch courses', error);
@@ -62,7 +63,7 @@ export default function GradePage() {
                             const cName = course.courseName || course.CourseName || course.title;
                             const cId = course.courseId || course.CourseId || course.id;
                             const isEnrolled = course.isEnrolled || course.IsEnrolled;
-                            const isActive = course.isActive || course.IsActive;
+                            const isActive = course.isCourseActive || course.IsActive;
 
                             return (
                                 <Link key={cId} to={isEnrolled && isActive ? `/student/course/${cId}` : '#'} className={`group ${(!isEnrolled || !isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>

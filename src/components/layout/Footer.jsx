@@ -13,9 +13,11 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-2">
-                        <Link to="/" className="text-3xl font-black mb-6 block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent flex items-center gap-2">
-                            <Sparkles size={28} className="text-primary" />
-                            منصة الغزالي
+                        <Link to="/" className="text-3xl font-black mb-6 block flex items-center gap-3">
+                            <img src="/ghazali.png" alt="منصة الغزالي" className="w-12 h-12 object-contain" />
+                            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                                منصة الغزالي
+                            </span>
                         </Link>
                         <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
                             منصة تعليمية رائدة تهدف إلى تيسير تعلم اللغة العربية للمرحلة الثانوية بأساليب حديثة ومبتكرة.

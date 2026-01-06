@@ -125,7 +125,7 @@ export default function AdminSubscriptions() {
                         
                         <div className="flex flex-col md:flex-row gap-4 flex-1">
                             <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg md:bg-transparent md:p-0">
-                                <label className="text-sm text-gray-600 whitespace-nowrap min-w-[60px]">الصف الدراسي:</label>
+                                <label className="text-sm text-gray-600 whitespace-nowrap min-w-[60px] ml-7">الصف الدراسي:</label>
                                 <select 
                                     className="border border-gray-200 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm bg-white"
                                     value={selectedGrade}

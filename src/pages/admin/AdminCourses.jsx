@@ -20,7 +20,7 @@ export default function AdminCourses() {
     
     // API uses 'name' but UI uses 'title' concept. Mapping: API name -> UI title (state use 'name' to match API or map it). 
     // Let's use 'name' in state to match API.
-    const [newCourse, setNewCourse] = useState({ name: '', description: '', gradeId: 1, sectionId: 1 });
+    const [newCourse, setNewCourse] = useState({ name: '', description: '', price: '', gradeId: 1, sectionId: 1, isActive: true });
 
     useEffect(() => {
         fetchCourses();
@@ -64,11 +64,13 @@ export default function AdminCourses() {
             setIsLoading(true);
             const courseData = {
                 name: newCourse.name,
+                price: newCourse.price,
                 description: newCourse.description,
                 gradeId: Number(newCourse.gradeId),
-                sectionId: Number(newCourse.sectionId)
+                sectionId: Number(newCourse.sectionId),
+                isActive: newCourse.isActive
             };
-
+console.log(courseData);
             if (isEditing) {
                 // Some backends require ID in the body as well
                 await adminService.updateCourse(newCourse.id, { ...courseData, id: newCourse.id });
@@ -79,7 +81,7 @@ export default function AdminCourses() {
             }
             
             setIsAdding(false);
-            setNewCourse({ name: '', description: '', gradeId: 1, sectionId: sections[0]?.id || 1 });
+            setNewCourse({ name: '', description: '', price: '', gradeId: 1, sectionId: sections[0]?.id || 1, isActive: true });
             fetchCourses(); // Refresh list
         } catch (err) {
             console.error(err);
@@ -94,8 +96,10 @@ export default function AdminCourses() {
             id: course.id,
             name: course.name || course.title, // Handle both just in case
             description: course.description,
+            price: course.price,
             gradeId: course.gradeId,
-            sectionId: course.sectionId || (sections[0]?.id || 1)
+            sectionId: course.sectionId || (sections[0]?.id || 1),
+            isActive: course.isActive
         });
         setIsEditing(true);
         setIsAdding(true);
@@ -166,6 +170,12 @@ export default function AdminCourses() {
                                     value={newCourse.name}
                                     onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
                                 />
+                                <Input
+                                    placeholder="السعر"
+                                    type="number"
+                                    value={newCourse.price}
+                                    onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
+                                />
                                 <div className="space-y-1">
                                     <label className="text-sm text-gray-500">الصف الدراسي</label>
                                     <select
@@ -197,7 +207,7 @@ export default function AdminCourses() {
                                 />
                             </div>
                             <div className="flex gap-2 justify-end">
-                                <Button variant="ghost" onClick={() => { setIsAdding(false); setIsEditing(false); setNewCourse({ name: '', gradeId: 1, sectionId: sections[0]?.id || 1, description: '' }); }}>إلغاء</Button>
+                                <Button variant="ghost" onClick={() => { setIsAdding(false); setIsEditing(false); setNewCourse({ name: '', price: '', gradeId: 1, sectionId: sections[0]?.id || 1, description: '', isActive: true }); }}>إلغاء</Button>
                                 <Button onClick={handleAddCourse} disabled={isLoading}>{isLoading ? 'جاري الحفظ...' : (isEditing ? 'حفظ التعديلات' : 'حفظ الكورس')}</Button>
                             </div>
                         </CardContent>
@@ -220,6 +230,7 @@ export default function AdminCourses() {
                                              </p>
                                         )}
                                         {/* <p className="text-primary text-sm font-bold bg-primary/10 inline-block px-2 py-1 rounded">{course.price || 'مجاني'}</p> */}
+                                         <p className="text-primary text-sm font-bold bg-primary/10 inline-block px-2 py-1 rounded">{course.price ? `${course.price} ج.م` : 'مجاني'}</p>
                                     </div>
                                     <p className="text-gray-400 text-sm break-words">{course.description}</p>
                                 </div>
