@@ -66,7 +66,7 @@ export default function GradePage() {
                             const isActive = course.isCourseActive || course.IsActive;
 
                             return (
-                                <Link key={cId} to={isEnrolled && isActive ? `/student/course/${cId}` : '#'} className={`group ${(!isEnrolled || !isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>
+                                <Link key={cId} to={isActive ? `/student/course/${cId}` : '#'} className={`group ${( !isActive) ? 'cursor-not-allowed opacity-80' : ''}`}>
                                     <Card className="h-full hover:shadow-xl transition-all border-none shadow-md bg-white overflow-hidden relative">
                                         <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 ${isEnrolled ? 'bg-primary/5' : 'bg-gray-100'}`}></div>
                                         <CardContent className="p-8 flex flex-col items-center text-center relative z-10">
@@ -80,12 +80,14 @@ export default function GradePage() {
                                                 {isEnrolled ? (
                                                     <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">مشترك</span>
                                                 ) : (
-                                                    <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-bold">غير مشترك</span>
+                                                    <div className="flex flex-col gap-1 items-center">
+                                                     {course.price && <span className="text-primary font-bold text-lg">{course.price} ج.م</span>}
+                                                    </div>
                                                 )}
                                                 {isActive ? (
-                                                     <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-bold">نشط</span>
+                                                     <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-bold h-fit">نشط</span>
                                                 ) : (
-                                                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-bold">غير نشط</span>
+                                                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-bold h-fit">غير نشط</span>
                                                 )}
                                             </div>
                                         
@@ -106,7 +108,7 @@ export default function GradePage() {
                                                 </div>
                                             )}
 
-                                            {isEnrolled && isActive ? (
+                                            {isActive ? (
                                                 <span className="text-primary font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
                                                     ابدأ المذاكرة <ArrowLeft size={20} />
                                                 </span>

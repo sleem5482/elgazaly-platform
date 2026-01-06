@@ -118,12 +118,14 @@ export default function CoursesPage() {
                                             {isEnrolled ? (
                                                 <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">مشترك</span>
                                             ) : (
-                                                <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-bold">غير مشترك</span>
+                                                 <div className="flex flex-col gap-1 items-center">
+                                                    {course.price && <span className="text-primary font-bold text-lg">{course.price} ج.م</span>}
+                                                </div>
                                             )}
                                             {isActive ? (
-                                                 <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-bold">نشط</span>
+                                                 <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-bold h-fit">نشط</span>
                                             ) : (
-                                                 <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-bold">غير نشط</span>
+                                                 <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-bold h-fit">غير نشط</span>
                                             )}
                                         </div>
                                         
