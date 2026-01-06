@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { PlayCircle, FileQuestion, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
 export default function FreeVideos() {
-    const { freeVideos, freeExams } = useData();
+    const { freeVideos} = useData();
     const [selectedVideo, setSelectedVideo] = useState(null);
 
     return (

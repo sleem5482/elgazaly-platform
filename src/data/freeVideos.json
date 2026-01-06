@@ -1,0 +1,26 @@
+[
+    {
+        "id": "fv1",
+        "title": "مقدمة في اللغة العربية",
+        "description": "درس تعريفي مجاني عن أهمية اللغة العربية",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": "15:00"
+    },
+    {
+        "id": "fv2",
+        "title": "أساسيات النحو",
+        "description": "شرح مبسط لأساسيات النحو العربي",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": "20:00"
+    },
+    {
+        "id": "fv3",
+        "title": "البلاغة للمبتدئين",
+        "description": "مدخل إلى علم البلاغة بطريقة سهلة",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": "18:00"
+    }
+]
