@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { PlayCircle, FileQuestion, ExternalLink } from 'lucide-react';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
 export default function FreeVideos() {
-    const { freeVideos} = useData();
-    console.log("lksfksjfldsjls",freeVideos)
+    const { freeVideos, freeExams } = useData();
     const [selectedVideo, setSelectedVideo] = useState(null);
 
     return (
@@ -58,7 +57,7 @@ export default function FreeVideos() {
                     )}
                 </div>
 
-                {/* Free Exams Section
+                {/* Free Exams Section */}
                 <div className="text-center mb-12">
                     <h2 className="text-4xl font-bold text-gray-900 mb-4">امتحانات مجانية</h2>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -98,7 +97,7 @@ export default function FreeVideos() {
                             لا توجد امتحانات مجانية حالياً
                         </div>
                     )}
-                </div> */}
+                </div>
 
                 {/* Video Modal */}
                 {selectedVideo && (
