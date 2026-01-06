@@ -1,26 +1,26 @@
 [
     {
-        "id": 1,
-        "title": "مقدمة في البلاغة - الصف الأول الثانوي",
-        "description": "شرح مبسط لمفاهيم البلاغة الأساسية والتشبيه والاستعارة.",
-        "thumbnail": "https://img.youtube.com/vi/ExampleID1/maxresdefault.jpg",
-        "youtubeUrl": "https://www.youtube.com/embed/ExampleID1",
+        "id": "fv1",
+        "title": "مقدمة في اللغة العربية",
+        "description": "درس تعريفي مجاني عن أهمية اللغة العربية",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
         "duration": "15:00"
     },
     {
-        "id": 2,
-        "title": "أقسام الكلام - النحو العربي",
-        "description": "تعرف على الاسم والفعل والحرف وعلامات كل قسم.",
-        "thumbnail": "https://img.youtube.com/vi/ExampleID2/maxresdefault.jpg",
-        "youtubeUrl": "https://www.youtube.com/embed/ExampleID2",
-        "duration": "20:30"
+        "id": "fv2",
+        "title": "أساسيات النحو",
+        "description": "شرح مبسط لأساسيات النحو العربي",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": "20:00"
     },
     {
-        "id": 3,
-        "title": "أهمية الأدب في العصر الجاهلي",
-        "description": "نبذة تاريخية عن الأدب الجاهلي وأهم المعلقات.",
-        "thumbnail": "https://img.youtube.com/vi/ExampleID3/maxresdefault.jpg",
-        "youtubeUrl": "https://www.youtube.com/embed/ExampleID3",
-        "duration": "12:45"
+        "id": "fv3",
+        "title": "البلاغة للمبتدئين",
+        "description": "مدخل إلى علم البلاغة بطريقة سهلة",
+        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "duration": "18:00"
     }
 ]

@@ -5,6 +5,7 @@ import { useData } from '../../context/DataContext';
 
 export default function FreeVideos() {
     const { freeVideos} = useData();
+    console.log("lksfksjfldsjls",freeVideos)
     const [selectedVideo, setSelectedVideo] = useState(null);
 
     return (

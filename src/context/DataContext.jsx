@@ -101,7 +101,6 @@ export function DataProvider({ children }) {
     useEffect(() => localStorage.setItem('exams', JSON.stringify(exams)), [exams]);
     useEffect(() => localStorage.setItem('subscriptions', JSON.stringify(subscriptions)), [subscriptions]);
     useEffect(() => localStorage.setItem('freeVideos', JSON.stringify(freeVideos)), [freeVideos]);
-    useEffect(() => localStorage.setItem('freeExams', JSON.stringify(freeExams)), [freeExams]);
 
     const subscribe = (userId, itemId, type, paymentData = {}) => {
         console.log('Subscribing:', { userId, itemId, type, paymentData });
