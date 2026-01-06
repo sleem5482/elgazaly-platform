@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 
 export default function FreeVideos() {
-    const { freeVideos, freeExams } = useData();
+    const { freeVideos } = useData();
     const [selectedVideo, setSelectedVideo] = useState(null);
-
+console.log(freeVideos)
+console.log(selectedVideo)
     return (
         <div className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
@@ -58,14 +59,14 @@ export default function FreeVideos() {
                 </div>
 
                 {/* Free Exams Section */}
-                <div className="text-center mb-12">
+                {/* <div className="text-center mb-12">
                     <h2 className="text-4xl font-bold text-gray-900 mb-4">امتحانات مجانية</h2>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                         اختبر مستواك مع مجموعة من الامتحانات المجانية
                     </p>
-                </div>
+                </div> */}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     {freeExams.map((exam) => (
                         <Link
                             key={exam.id}
@@ -97,7 +98,7 @@ export default function FreeVideos() {
                             لا توجد امتحانات مجانية حالياً
                         </div>
                     )}
-                </div>
+                </div> */}
 
                 {/* Video Modal */}
                 {selectedVideo && (
