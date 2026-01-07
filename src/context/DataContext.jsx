@@ -48,10 +48,7 @@ export function DataProvider({ children }) {
         return stored ? JSON.parse(stored) : [];
     });
 
-    const [freeVideos, setFreeVideos] = useState(() => {
-        const stored = localStorage.getItem('freeVideos_v2');
-        return stored ? JSON.parse(stored) : freeVideosData;
-    });
+    const [freeVideos, setFreeVideos] = useState(freeVideosData);
 
     const [freeExams, setFreeExams] = useState(() => {
         const stored = localStorage.getItem('freeExams');
@@ -100,7 +97,7 @@ export function DataProvider({ children }) {
     useEffect(() => localStorage.setItem('lessons', JSON.stringify(lessons)), [lessons]);
     useEffect(() => localStorage.setItem('exams', JSON.stringify(exams)), [exams]);
     useEffect(() => localStorage.setItem('subscriptions', JSON.stringify(subscriptions)), [subscriptions]);
-    useEffect(() => localStorage.setItem('freeVideos_v2', JSON.stringify(freeVideos)), [freeVideos]);
+
 
     const subscribe = (userId, itemId, type, paymentData = {}) => {
         console.log('Subscribing:', { userId, itemId, type, paymentData });

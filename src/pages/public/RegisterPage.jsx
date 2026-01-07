@@ -224,37 +224,7 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">نوع الطالب</label>
-                            <div className="flex gap-4">
-                                <label className="flex-1 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="studentType"
-                                        value="2"
-                                        checked={formData.studentType === '2'}
-                                        onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
-                                        className="hidden peer"
-                                    />
-                                    <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
-                                        Online
-                                    </div>
-                                </label>
-                                <label className="flex-1 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="studentType"
-                                        value="1"
-                                        checked={formData.studentType === '1'}
-                                        onChange={(e) => setFormData({ ...formData, studentType: e.target.value })}
-                                        className="hidden peer"
-                                    />
-                                    <div className="py-3 px-4 rounded-xl border-2 border-gray-200 text-center text-gray-500 peer-checked:border-secondary peer-checked:text-secondary peer-checked:bg-secondary/5 transition-all">
-                                        Center
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">كلمة المرور</label>

@@ -24,14 +24,24 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title }) {
                 {/* Video Player */}
                 <div className="aspect-video w-full bg-black flex items-center justify-center">
                     {videoUrl ? (
-                        <video 
-                            src={videoUrl} 
-                            controls 
-                            autoPlay 
-                            className="w-full h-full"
-                        >
-                            Your browser does not support the video tag.
-                        </video>
+                         (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) ? (
+                            <iframe 
+                                src={videoUrl.includes('watch?v=') ? videoUrl.replace('watch?v=', 'embed/') : videoUrl.includes('youtu.be/') ? `https://www.youtube.com/embed/${videoUrl.split('youtu.be/')[1].split('?')[0]}` : videoUrl}
+                                title={title}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        ) : (
+                            <video 
+                                src={videoUrl} 
+                                controls 
+                                autoPlay 
+                                className="w-full h-full"
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+                        )
                     ) : (
                         <div className="text-white/60">No video URL provided</div>
                     )}

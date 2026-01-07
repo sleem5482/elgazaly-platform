@@ -6,8 +6,8 @@ import { useData } from '../../context/DataContext';
 export default function FreeVideos() {
     const { freeVideos } = useData();
     const [selectedVideo, setSelectedVideo] = useState(null);
-console.log(freeVideos)
-console.log(selectedVideo)
+    console.log(freeVideos);
+    
     return (
         <div className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
@@ -28,7 +28,7 @@ console.log(selectedVideo)
                         >
                             <div className="relative h-48 overflow-hidden">
                                 <img
-                                    src={video.thumbnail}
+                                    src="../../../public/ghazali.png"
                                     alt={video.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />

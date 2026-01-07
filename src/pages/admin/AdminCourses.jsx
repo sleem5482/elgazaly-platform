@@ -9,7 +9,7 @@ import Input from '../../components/ui/Input';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 
 export default function AdminCourses() {
-    const { grades } = useData();
+    const [grades, setGrades] = useState([]);
     const toast = useToast();
     const [courses, setCourses] = useState([]);
     const [sections, setSections] = useState([]);
@@ -25,7 +25,18 @@ export default function AdminCourses() {
     useEffect(() => {
         fetchCourses();
         fetchSections();
+        fetchGrades();
     }, []);
+
+    const fetchGrades = async () => {
+        try {
+            const data = await adminService.getGrades();
+            setGrades(data);
+        } catch (err) {
+            console.error('Failed to fetch grades', err);
+            toast.error('فشل تحميل الصفوف الدراسية');
+        }
+    };
 
     const fetchCourses = async () => {
         try {
@@ -184,7 +195,7 @@ console.log(courseData);
                                         onChange={(e) => setNewCourse({ ...newCourse, gradeId: e.target.value })}
                                     >
                                         {grades.map(g => (
-                                            <option key={g.id} value={g.id}>{g.title}</option>
+                                            <option key={g.id} value={g.id}>{g.name || g.title}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -223,7 +234,7 @@ console.log(courseData);
                                 <div className="w-full md:w-auto">
                                     <h3 className="text-lg md:text-xl font-bold text-secondary mb-2 group-hover:text-primary transition-colors break-words">{course.name || course.title}</h3>
                                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                                        <p className="text-gray-500 text-xs md:text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded">{grades.find(g => g.id === course.gradeId)?.title}</p>
+                                        <p className="text-gray-500 text-xs md:text-sm font-medium bg-gray-100 inline-block px-2 py-1 rounded">{grades.find(g => g.id === course.gradeId)?.name || grades.find(g => g.id === course.gradeId)?.title}</p>
                                         {course.sectionId && (
                                              <p className="text-blue-500 text-xs md:text-sm font-medium bg-blue-50 inline-block px-2 py-1 rounded">
                                                 {sections.find(s => s.id === course.sectionId)?.name}

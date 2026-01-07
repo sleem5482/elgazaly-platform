@@ -1,25 +1,25 @@
 [
     {
         "id": "fv1",
-        "title": "مقدمة في اللغة العربية",
-        "description": "درس تعريفي مجاني عن أهمية اللغة العربية",
-        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "title": "مقدمة في اللغة العربية5555",
+        "description": "الكورس التأسيسي ثانويه عامه 2026 مع مستر محمد الغزالي",
+        "youtubeUrl": "https://youtu.be/VV4Ln6xjc8M?si=a0HsIO9zrAZWVuiv",
         "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-        "duration": "15:00"
+        "duration": "55:00"
     },
     {
         "id": "fv2",
         "title": "أساسيات النحو",
-        "description": "شرح مبسط لأساسيات النحو العربي",
-        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "description": "انواع المصادر  في النحو الصف الثالث الثانوي ",
+        "youtubeUrl": "https://youtu.be/CEXyPJHkpx0?si=reJQW_LxOIG17RNX",
         "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-        "duration": "20:00"
+        "duration": "02:40"
     },
     {
         "id": "fv3",
-        "title": "البلاغة للمبتدئين",
-        "description": "مدخل إلى علم البلاغة بطريقة سهلة",
-        "youtubeUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "title": "الكورس التأسيسي",
+        "description": "الكورس التأسيسي ثانويه عامه 2026 مع مستر محمد الغزالي  المحاضره السادسه",
+        "youtubeUrl": "https://youtu.be/VV4Ln6xjc8M?si=4LRWl07PurJB7h1a",
         "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
         "duration": "18:00"
     }

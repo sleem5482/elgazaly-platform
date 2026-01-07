@@ -505,7 +505,20 @@ export default function AdminContent() {
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors break-words">{item.monthName || item.title || item.name}</h3>
-                                            {item.orderNumber && <p className="text-xs text-gray-400">ترتيب: {item.orderNumber}</p>}
+                                            <div className="flex flex-wrap gap-2 mt-1">
+                                                {item.orderNumber && <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">ترتيب: {item.orderNumber}</span>}
+                                                {type === 'video' && (
+                                                    <>
+                                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{item.duration} دقيقة</span>
+                                                        <span className={`text-xs px-2 py-1 rounded ${item.visibility === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {item.visibility === 1 ? 'ظاهر' : 'مخفي'}
+                                                        </span>
+                                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                                            {item.videoType === 1 ? 'شرح' : item.videoType === 2 ? 'حل' : 'مراجعة'}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 w-full md:w-auto justify-end">

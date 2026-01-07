@@ -13,7 +13,7 @@ export default function Navbar() {
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className="bg-white/95 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-50 px-4 md:px-6 py-3 shadow-lg shadow-gray-200/50"
+            className="bg-white/95 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-200 px-4 md:px-6 py-3 shadow-lg shadow-gray-200/50"
         >
             <div className="max-w-7xl mx-auto flex justify-between items-center">
                 {/* Logo Section */}
@@ -25,7 +25,7 @@ export default function Navbar() {
                             className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary via-orange-500 to-secondary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/30 relative overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />
-                            <BookOpen size={24} className="md:w-7 md:h-7 relative z-10" strokeWidth={2.5} />
+                            <img src="../../public/ghazali.png" alt="elgazaly icon" />
                         </motion.div>
                         <div className="flex flex-col">
                             <span className="text-xl md:text-2xl font-black text-gray-900 leading-none bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">منصة الغزالي</span>

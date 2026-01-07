@@ -1,28 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { studentService } from '../../services/studentService';
 import { FileQuestion, ExternalLink, Lock, CheckCircle, ArrowLeft } from 'lucide-react';
 import Button from '../ui/Button';
+import { useToast } from '../../context/ToastContext';
+
 
 export default function FreeExams() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
+    
+const { showToast } = useToast();
     useEffect(() => {
         const fetchExams = async () => {
             if (!user) return;
             
             setLoading(true);
             try {
-                // Fetch all available exams for the student
-                // We assuming the API returns a list of exams, and we filter for 'free' ones 
-                // or the API handles it. The requirement says "show free exams".
-                // If the API returns all exams, we might need to filter.
-                // For now, I'll display what the API returns as "Available Exams"
+
                 const data = await studentService.getAllExams();
                 if (Array.isArray(data)) {
                     // Filter logic can be applied here if data has a 'type' or 'isFree' field
@@ -33,7 +31,8 @@ export default function FreeExams() {
                 }
             } catch (err) {
                 console.error("Failed to fetch exams", err);
-                setError("فشل في تحميل الامتحانات");
+                showToast(err.message, "error")
+
             } finally {
                 setLoading(false);
             }
@@ -41,7 +40,6 @@ export default function FreeExams() {
 
         fetchExams();
     }, [user]);
-
     return (
         <div className="py-20 bg-white">
             <div className="container mx-auto px-4">
@@ -111,10 +109,11 @@ export default function FreeExams() {
                                     
                                     <div className="relative z-10 text-white">
                                         <h3 className="text-xl font-bold mb-1 line-clamp-2" title={exam.title}>{exam.title}</h3>
+                                        <h4 className='text-secondary font-bold mb-1 line-clamp-2' title={exam.examDate}>{new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h4>
                                         <div className="flex items-center gap-4 text-sm opacity-90">
-                                            <span>{exam.duration} دقيقة</span>
+                                            <span>{exam.durationMinutes} دقيقة</span>
                                             <span>•</span>
-                                            <span>{exam.questionsCount || 0} سؤال</span>
+                                            <span>{exam.totalMarks || 0} {exam.totalMarks > 1 ? 'درجات' : 'درجة'}</span>
                                         </div>
                                     </div>
                                 </div>

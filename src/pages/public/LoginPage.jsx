@@ -84,11 +84,11 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {loginType === 'Admin' ? 'البريد الإلكتروني':loginType === 'Center' ? ' الكود' : 'رقم الهاتف'}
+                                {loginType === 'Center' ? ' الكود' : 'رقم الهاتف'}
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    {loginType === 'Admin' ? (
+                                    {loginType === 'Center' ? (
                                         <User className="h-5 w-5 text-gray-400" />
                                     ) : (
                                         <Phone className="h-5 w-5 text-gray-400" />
@@ -98,7 +98,7 @@ export default function LoginPage() {
                                     type={loginType === 'Admin' ? 'text' : 'text'}
                                     required
                                     className="pr-10 py-3 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-                                    placeholder={loginType === 'Admin' ? 'email' : 'رقم الهاتف أو الكود'}
+                                    placeholder={loginType === 'Center' ?  ' الكود': 'رقم الهاتف'}
                                     value={identifier}
                                     onChange={(e) => setIdentifier(e.target.value)}
                                 />
