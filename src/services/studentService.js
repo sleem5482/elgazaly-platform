@@ -148,8 +148,8 @@ export const studentService = {
         return response.json();
     },
 
-    getAvailableWeeks: async (id) => {
-        const response = await fetch(API_ENDPOINTS.STUDENT.AVAILABLE_WEEKS(id), {
+    getAvailableWeeks: async (courseId, monthId) => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.AVAILABLE_WEEKS(courseId, monthId), {
             headers: getAuthHeader()
         });
         if (!response.ok) await handleResponseError(response, 'Failed to fetch weeks');

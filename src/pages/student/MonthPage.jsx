@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { studentService } from '../../services/studentService';
 import { useAuth } from '../../context/AuthContext';
@@ -16,13 +16,23 @@ export default function MonthPage() {
     const [monthWeeks, setMonthWeeks] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const month = months.find(m => m.id === monthId) || { title: 'تفاصيل الشهر', description: '' };
-    const course = courses.find(c => c.id === month?.courseId);
+    const location = useLocation();
+    
+    // Prefer state from navigation, fallback to context or empty
+    const stateMonth = location.state?.month;
+    const stateCourseId = location.state?.courseId;
+
+    const month = stateMonth || months.find(m => m.id === monthId) || { title: 'تفاصيل الشهر', description: '' };
+    // Prioritize passed courseId, then deduce from month, then find in context
+    const currentCourseId = stateCourseId || month.courseId || courses.find(c => c.id === month?.courseId)?.id;
+    const course = courses.find(c => c.id === currentCourseId);
 
     useEffect(() => {
         const fetchWeeks = async () => {
+            if (!currentCourseId) return; 
+
             try {
-                const data = await studentService.getAvailableWeeks(monthId);
+                const data = await studentService.getAvailableWeeks(currentCourseId, monthId);
                 setMonthWeeks(data);
             } catch (err) {
                 console.error("Failed to fetch weeks", err);
@@ -30,10 +40,11 @@ export default function MonthPage() {
                 setLoading(false);
             }
         };
+
         if (monthId) {
-            fetchWeeks();
+             fetchWeeks();
         }
-    }, [monthId]);
+    }, [monthId, currentCourseId]);
 
     // if (!month) return <div className="p-8">Month not found</div>; // Context might be empty initially, handle gracefully
 

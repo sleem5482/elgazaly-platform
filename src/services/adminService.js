@@ -331,6 +331,7 @@ export const adminService = {
             body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error('Failed to create week');
+        console.log(response);
         return response.json();
     },
 

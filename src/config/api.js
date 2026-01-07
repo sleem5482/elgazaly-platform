@@ -77,7 +77,7 @@ export const API_ENDPOINTS = {
         },
         VIDEOS: (weekId) => `${API_BASE_URL}/student/course-weeks/${weekId}/videos`,
         ACCESS_VIDEO: (id) => `${API_BASE_URL}/student/videos/${id}/access`,
-        AVAILABLE_WEEKS: (id) => `${API_BASE_URL}/student/courses/AvailableWEEKS/${id}`
+        AVAILABLE_WEEKS: (courseId, monthId) => `${API_BASE_URL}/student/courses/AvailableWeeks/${courseId}/${monthId}`
     }
 };
 

@@ -118,7 +118,7 @@ export default function CoursePage() {
 
                                             <div className="mt-auto">
                                                 {month.alreadySubscribed ? (
-                                                    <Link to={`/month/${month.id}`} className="block">
+                                                    <Link to={`/month/${month.id}`} state={{ month, courseId }} className="block">
                                                         <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all flex items-center justify-center gap-2">
                                                             <span>عرض المحتوى</span>
                                                             <ChevronLeft size={18} />
