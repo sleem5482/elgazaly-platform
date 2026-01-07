@@ -25,7 +25,7 @@ export default function Navbar() {
                             className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary via-orange-500 to-secondary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/30 relative overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />
-                            <img src="../../public/ghazali.png" alt="elgazaly icon" />
+                            <img src="/ghazali.png" alt="elgazaly icon" className="w-full h-full object-cover" />
                         </motion.div>
                         <div className="flex flex-col">
                             <span className="text-xl md:text-2xl font-black text-gray-900 leading-none bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">منصة الغزالي</span>
