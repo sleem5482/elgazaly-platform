@@ -8,6 +8,7 @@ import { studentService } from '../../services/studentService';
 import { useAuth } from '../../context/AuthContext';
 import { PlayCircle, UserPlus, ArrowLeft, Star, Shield, Clock, CheckCircle, Users, BookOpen, Award, Sparkles, TrendingUp, Lock } from 'lucide-react';
 import FreeVideos from '../../components/public/FreeVideos';
+import FreeExams from '../../components/public/FreeExams';
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -457,6 +458,7 @@ export default function HomePage() {
 
 
               <FreeVideos/>
+              <FreeExams/>
             
 
                 {/* CTA Section with Enhanced Design */}
