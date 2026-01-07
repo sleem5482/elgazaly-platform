@@ -28,7 +28,7 @@ export default function FreeVideos() {
                         >
                             <div className="relative h-48 overflow-hidden">
                                 <img
-                                    src="../../../public/ghazali.png"
+                                    src="/ghazali.png"
                                     alt={video.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
@@ -112,7 +112,7 @@ export default function FreeVideos() {
                         >
                             <div className="aspect-video">
                                 <iframe
-                                    src={selectedVideo.youtubeUrl}
+                                    src={selectedVideo.youtubeUrl.includes('watch?v=') ? selectedVideo.youtubeUrl.replace('watch?v=', 'embed/') : selectedVideo.youtubeUrl.includes('youtu.be/') ? `https://www.youtube.com/embed/${selectedVideo.youtubeUrl.split('youtu.be/')[1].split('?')[0]}` : selectedVideo.youtubeUrl}
                                     title={selectedVideo.title}
                                     className="w-full h-full"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
