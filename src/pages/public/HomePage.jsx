@@ -463,7 +463,7 @@ export default function HomePage() {
 
                 {/* CTA Section with Enhanced Design */}
                 <div className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 relative overflow-hidden">
-                    {/* Animated Background Elements */}
+                    
                     <motion.div
                         className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
                         animate={{
