@@ -31,7 +31,7 @@ const { showToast } = useToast();
                 }
             } catch (err) {
                 console.error("Failed to fetch exams", err);
-                showToast(err.message, "error")
+                showToast("error when fetching exams")
 
             } finally {
                 setLoading(false);

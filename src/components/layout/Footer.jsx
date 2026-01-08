@@ -14,7 +14,7 @@ export default function Footer() {
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-2">
                         <Link to="/" className="text-3xl font-black mb-6 block flex items-center gap-3">
-                            <img src="/ghazali.png" alt="منصة الغزالي" className="w-12 h-12 object-contain" />
+                            <img src="/اللوجو اسود.png" alt="منصة الغزالي" className="w-12 h-12 object-contain bg-white rounded-2xl" />
                             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                                 منصة الغزالي
                             </span>
