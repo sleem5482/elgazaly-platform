@@ -280,9 +280,9 @@ export default function AdminContent() {
                 <Button variant={freeContentView === 'videos' ? 'primary' : 'outline'} onClick={() => setFreeContentView('videos')} className="flex-1 justify-center">
                     <PlayCircle size={20} className="ml-2" /> فيديوهات مجانية
                 </Button>
-                <Button variant={freeContentView === 'exams' ? 'primary' : 'outline'} onClick={() => setFreeContentView('exams')} className="flex-1 justify-center">
+                {/* <Button variant={freeContentView === 'exams' ? 'primary' : 'outline'} onClick={() => setFreeContentView('exams')} className="flex-1 justify-center">
                     <FileQuestion size={20} className="ml-2" /> امتحانات مجانية
-                </Button>
+                </Button> */}
             </div>
             
              <Card className="bg-white border-none shadow-sm">
