@@ -39,7 +39,7 @@ export default function LessonPage() {
     }
 
     return videoId
-      ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1&fs=0`
+      ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&loading=lazy&iv_load_policy=3&showinfo=0&disablekb=1&fs=0`
       : '';
   };
   
@@ -134,14 +134,18 @@ export default function LessonPage() {
                     </div>
 
                     {isYoutubeUrl(videoData.videoUrl) ? (
-                      <iframe
-                        src={`${getEmbedUrl(videoData.videoUrl)}&mute=0`}
-                        title="Video Player"
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
+                      <>
+                        <iframe
+                          src={`${getEmbedUrl(videoData.videoUrl)}&mute=0`}
+                          title="Video Player"
+                          className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                        />
+                        {/* Block 'Watch on YouTube' Button (Bottom-Left) */}
+                        <div className="absolute bottom-0 left-0 w-40 h-16 z-20 bg-transparent" />
+                      </>
                     ) : (
                       <video
                         src={videoData.videoUrl}

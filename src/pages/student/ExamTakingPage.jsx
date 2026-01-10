@@ -32,6 +32,7 @@ export default function ExamTakingPage() {
             try {
                 const data = await studentService.startExam(id);
                 setExam(data);
+                console.log(data);
                 setQuestions(data.questions || []);
 
                 if (data.durationMinutes) {
@@ -111,7 +112,7 @@ export default function ExamTakingPage() {
                     selectedOption: option
                 }))
             };
-
+            console.log('Submitting payload:', payload);
             await studentService.submitExam(payload);
             showToast('تم تسليم الامتحان بنجاح', 'success');
             navigate('/dashboard');

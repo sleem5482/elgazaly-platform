@@ -168,11 +168,11 @@ function App() {
             <AdminExams />
           </ProtectedRoute>
         } />
-        <Route path="/admin/settings" element={
+        {/* <Route path="/admin/settings" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminSettings />
           </ProtectedRoute>
-        } />
+        } /> */}
         <Route path="/admin/grades" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminGrades />

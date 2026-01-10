@@ -48,7 +48,17 @@ export function DataProvider({ children }) {
         return stored ? JSON.parse(stored) : [];
     });
 
-    const [freeVideos, setFreeVideos] = useState(freeVideosData);
+    const [freeVideos, setFreeVideos] = useState(() => {
+        const stored = localStorage.getItem('freeVideos');
+        // If stored data exists, merge or use it. If not, use default data.
+        // For simplicity: if stored exists, use it. Ideally we might want to check for updates in JSON, but user prioritized "saved" edits.
+        return stored ? JSON.parse(stored) : freeVideosData;
+    });
+
+    // Persist free videos to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('freeVideos', JSON.stringify(freeVideos));
+    }, [freeVideos]);
 
     const [freeExams, setFreeExams] = useState(() => {
         const stored = localStorage.getItem('freeExams');

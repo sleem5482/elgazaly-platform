@@ -17,7 +17,7 @@ export default function AdminSidebar() {
         { name: 'الاختبارات', path: '/admin/exams', icon: ClipboardList },
         { name: 'الصفوف', path: '/admin/grades', icon: GraduationCap },
         { name: 'الشعب', path: '/admin/sections', icon: Layers },
-        { name: 'الإعدادات', path: '/admin/settings', icon: Settings },
+        // { name: 'الإعدادات', path: '/admin/settings', icon: Settings },
     ];
 
     const [isOpen, setIsOpen] = useState(false);

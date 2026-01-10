@@ -286,20 +286,36 @@ export const adminService = {
     },
 
     createMonth: async (courseId, data) => {
+        const isFormData = data instanceof FormData;
+        const headers = getAuthHeader();
+        if (isFormData) {
+            delete headers['Content-Type']; // Let browser set boundary
+        } else {
+            headers['Content-Type'] = 'application/json';
+        }
+
         const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_MONTHS(courseId), {
             method: 'POST',
-            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            headers,
+            body: isFormData ? data : JSON.stringify(data)
         });
         if (!response.ok) throw new Error('Failed to create month');
         return response.json();
     },
 
     updateMonth: async (courseId, monthId, data) => {
+        const isFormData = data instanceof FormData;
+        const headers = getAuthHeader();
+        if (isFormData) {
+            delete headers['Content-Type'];
+        } else {
+            headers['Content-Type'] = 'application/json';
+        }
+
         const response = await fetch(API_ENDPOINTS.ADMIN.COURSE_MONTHS_BY_ID(courseId, monthId), {
             method: 'PUT',
-            headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            headers,
+            body: isFormData ? data : JSON.stringify(data)
         });
         if (!response.ok) throw new Error('Failed to update month');
         return response.status !== 204 ? response.json() : true;

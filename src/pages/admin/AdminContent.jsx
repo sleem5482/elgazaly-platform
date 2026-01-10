@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
+import { MEDIA_BASE_URL } from '../../config/api';
 import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
 import AdminSidebar from '../../components/admin/AdminSidebar';
@@ -104,15 +105,19 @@ export default function AdminContent() {
         setIsLoading(true);
         try {
             if (view === 'months') {
-                const data = {
-                    monthName: newItemName,
-                    orderNumber: newItemOrder,
-                    startDate: newItemStartDate ? new Date(newItemStartDate).toISOString() : new Date().toISOString(),
-                    endDate: newItemEndDate ? new Date(newItemEndDate).toISOString() : new Date().toISOString()
-                };
-                await adminService.createMonth(selectedCourse.id, data);
+                const formData = new FormData();
+                formData.append('MonthName', newItemName);
+                formData.append('OrderNumber', newItemOrder);
+                formData.append('StartDate', newItemStartDate ? new Date(newItemStartDate).toISOString() : new Date().toISOString());
+                formData.append('EndDate', newItemEndDate ? new Date(newItemEndDate).toISOString() : new Date().toISOString());
+                if (newItemImage) {
+                    formData.append('Photourl', newItemImage);
+                }
+
+                await adminService.createMonth(selectedCourse.id, formData);
                 toast.success('تم إضافة الشهر بنجاح');
                 fetchMonths();
+                setNewItemImage(null); // Reset image
             } else if (view === 'weeks') {
                 const data = {
                     title: newItemName,
@@ -181,14 +186,18 @@ export default function AdminContent() {
             
             if (type === 'month') {
                 // Mapping back to API expectations
-                const data = {
-                    monthName: editFormData.monthName || editFormData.title || editFormData.name, 
-                    orderNumber: editFormData.orderNumber || editFormData.order,
-                    startDate: editFormData.startDate ? new Date(editFormData.startDate).toISOString() : new Date().toISOString(),
-                    endDate: editFormData.endDate ? new Date(editFormData.endDate).toISOString() : new Date().toISOString()
-                };
-                await adminService.updateMonth(selectedCourse.id, id, data);
+                const formData = new FormData();
+                formData.append('MonthName', editFormData.monthName || editFormData.title || editFormData.name);
+                formData.append('OrderNumber', editFormData.orderNumber || editFormData.order);
+                formData.append('StartDate', editFormData.startDate ? new Date(editFormData.startDate).toISOString() : new Date().toISOString());
+                formData.append('EndDate', editFormData.endDate ? new Date(editFormData.endDate).toISOString() : new Date().toISOString());
+                if (newItemImage) {
+                     formData.append('Photourl', newItemImage);
+                }
+
+                await adminService.updateMonth(selectedCourse.id, id, formData);
                 fetchMonths();
+                setNewItemImage(null); // Reset image
             } else if (type === 'week') {
                 const data = {
                     title: editFormData.title,
@@ -346,24 +355,34 @@ export default function AdminContent() {
                     />
 
                     {type === 'month' && (
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
-                                <Input
-                                    type="datetime-local"
-                                    value={newItemStartDate}
-                                    onChange={(e) => setNewItemStartDate(e.target.value)}
+                        <>
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={newItemStartDate}
+                                        onChange={(e) => setNewItemStartDate(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
+                                    <Input
+                                        type="datetime-local"
+                                        value={newItemEndDate}
+                                        onChange={(e) => setNewItemEndDate(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">صورة العرض</label>
+                                <Input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={(e) => setNewItemImage(e.target.files[0])}
                                 />
                             </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
-                                <Input
-                                    type="datetime-local"
-                                    value={newItemEndDate}
-                                    onChange={(e) => setNewItemEndDate(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                        </>
                     )}
                     
                     {type === 'video' && (
@@ -424,24 +443,44 @@ export default function AdminContent() {
                                         placeholder="الترتيب"
                                     />
                                     {type === 'month' && (
-                                        <div className="flex flex-col md:flex-row gap-4">
-                                           <div className="flex-1">
-                                               <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
-                                               <Input
-                                                   type="datetime-local"
-                                                   value={editFormData.startDate ? new Date(editFormData.startDate).toISOString().slice(0, 16) : ''}
-                                                   onChange={(e) => setEditFormData({ ...editFormData, startDate: e.target.value })}
-                                               />
-                                           </div>
-                                           <div className="flex-1">
-                                               <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
-                                               <Input
-                                                   type="datetime-local"
-                                                   value={editFormData.endDate ? new Date(editFormData.endDate).toISOString().slice(0, 16) : ''}
-                                                   onChange={(e) => setEditFormData({ ...editFormData, endDate: e.target.value })}
-                                               />
-                                           </div>
-                                       </div>
+                                        <>
+                                            <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ البداية</label>
+                                                <Input
+                                                    type="datetime-local"
+                                                    value={editFormData.startDate ? new Date(editFormData.startDate).toISOString().slice(0, 16) : ''}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, startDate: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <label className="block text-sm font-medium mb-1 text-gray-700">تاريخ النهاية</label>
+                                                <Input
+                                                    type="datetime-local"
+                                                    value={editFormData.endDate ? new Date(editFormData.endDate).toISOString().slice(0, 16) : ''}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, endDate: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            {editFormData.photourl && (
+                                                <div className="mb-2">
+                                                    <p className="text-sm text-gray-500 mb-1">الصورة الحالية:</p>
+                                                    <img 
+                                                        src={`${MEDIA_BASE_URL}${editFormData.photourl}`} 
+                                                        alt="Month Preview" 
+                                                        className="h-20 w-auto object-cover rounded border"
+                                                    />
+                                                </div>
+                                            )}
+                                                <label className="block text-sm font-medium mb-1 text-gray-700">تغيير صورة العرض</label>
+                                                <Input 
+                                                    type="file" 
+                                                    accept="image/*"
+                                                    onChange={(e) => setNewItemImage(e.target.files[0])}
+                                                />
+                                        </div>
+                                       </>
                                     )}
                                      {type === 'video' && (
                                          <div className="space-y-4 pt-2 border-t mt-2">
@@ -500,8 +539,12 @@ export default function AdminContent() {
                                             else if (type === 'video') setSelectedVideo(item);
                                         }}
                                     >
-                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
-                                            <Icon size={20} />
+                                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0 overflow-hidden">
+                                            {type === 'month' && item.photourl ? (
+                                                <img src={`${MEDIA_BASE_URL}${item.photourl}`} alt={item.monthName} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Icon size={20} />
+                                            )}
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors break-words">{item.monthName || item.title || item.name}</h3>

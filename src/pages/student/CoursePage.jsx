@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { studentService } from '../../services/studentService';
+import { MEDIA_BASE_URL } from '../../config/api';
 import Sidebar from '../../components/layout/Sidebar';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Calendar, ChevronLeft, PlayCircle, BookOpen, Loader2, AlertCircle } from 'lucide-react';
@@ -87,7 +88,24 @@ export default function CoursePage() {
                                     <Card className="group hover:shadow-xl transition-all duration-300 border-none shadow-md overflow-hidden bg-white flex flex-col h-full hover:-translate-y-2">
                                         <div className="h-48 bg-gray-200 relative overflow-hidden">
                                             {/* Gradient Background */}
-                                            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-600 z-10"></div>
+                                            {/* Image or Gradient Background */}
+                                            {month.photourl ? (
+                                                <>
+                                                    <img 
+                                                        src={month.photourl.startsWith('http') ? month.photourl : `${MEDIA_BASE_URL}${month.photourl}`}
+                                                        alt={month.monthName}
+                                                        className="absolute inset-0 w-full h-full object-cover z-0"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none'; // Hide if fails
+                                                            e.target.nextSibling.style.display = 'block'; // Show gradient fallback (not implemented this way, simple fallback better)
+                                                        }} 
+                                                    />
+                                                    {/* Dark overlay for text readability */}
+                                                    <div className="absolute inset-0 bg-black/50 z-10"></div>
+                                                </>
+                                            ) : (
+                                                <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-600 z-10"></div>
+                                            )}
                                             
                                             {/* Month Info */}
                                             <div className="absolute inset-0 p-6 z-20 flex flex-col justify-between text-white">
@@ -98,7 +116,7 @@ export default function CoursePage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm opacity-80 mb-1">شهر {idx + 1}</p>
-                                                    <h3 className="text-2xl font-bold">{month.monthName}</h3>
+                                                    <h3 className="text-2xl font-bold text-white">{month.monthName}</h3>
                                                 </div>
                                             </div>
                                         </div>
