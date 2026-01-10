@@ -145,6 +145,9 @@ export default function LessonPage() {
                         />
                         {/* Block 'Watch on YouTube' Button (Bottom-Left) */}
                         <div className="absolute bottom-0 left-0 w-40 h-16 z-20 bg-transparent" />
+                        
+                        {/* Block 'YouTube' Logo (Bottom-Right) - Allows Settings & Custom Button access */}
+                        <div className="absolute bottom-0 right-0 w-24 h-12 z-10 bg-transparent" />
                       </>
                     ) : (
                       <video
@@ -170,7 +173,7 @@ export default function LessonPage() {
                       document.exitFullscreen();
                     }
                   }}
-                  className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute bottom-4 right-4 bg-black/60 text-white p-2 rounded-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 >
                   {isFullscreen ? <Shrink size={20} /> : <Expand size={20} />}
                 </button>
