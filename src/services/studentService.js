@@ -30,10 +30,10 @@ const handleResponseError = async (response, defaultMessage) => {
 
 export const studentService = {
     getAllExams: async () => {
-        const response = await fetch(API_ENDPOINTS.STUDENT.EXAMS.AVAILABLE, {
+        const response = await fetch(API_ENDPOINTS.STUDENT.EXAMS.FREE, {
             headers: getAuthHeader()
         });
-        if (!response.ok) await handleResponseError(response, 'Failed to fetch available exams');
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch free exams');
         return response.json();
     },
 
@@ -92,6 +92,14 @@ export const studentService = {
             headers: getAuthHeader()
         });
         if (!response.ok) await handleResponseError(response, 'Failed to fetch my courses');
+        return response.json();
+    },
+
+    getAllCourses: async () => {
+        const response = await fetch(API_ENDPOINTS.STUDENT.COURSES.ALL_COURSES, {
+            headers: getAuthHeader()
+        });
+        if (!response.ok) await handleResponseError(response, 'Failed to fetch all courses');
         return response.json();
     },
 

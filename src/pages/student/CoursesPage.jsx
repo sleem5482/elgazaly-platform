@@ -22,7 +22,7 @@ export default function CoursesPage() {
     useEffect(() => {
         const fetchCourses = async () => {
              try {
-                 const data = await studentService.getMyCourses();
+                 const data = await studentService.getAllCourses();
                  setCourses(data);
              } catch (error) {
                  console.error('Failed to fetch courses', error);
@@ -82,12 +82,12 @@ export default function CoursesPage() {
                         {filteredCourses.length > 0 ? filteredCourses.map(course => {
                             // Normalize data to handle potential PascalCase/camelCase mismatches
                             // Normalize data to handle potential PascalCase/camelCase mismatches
-                            const cName = course.courseName;
-                            const cId = course.courseId;
+                            const cName = course.courseName || course.title || course.name;
+                            const cId = course.courseId || course.id;
                             const isEnrolled = course.isEnrolled;
                             const isSubscriptionActive = course.isSubscriptionActive;
-                            const isActive = course.isCourseActive;
-                            const gradeId = course.gradeId;
+                            const isActive = course.isCourseActive !== undefined ? course.isCourseActive : course.isActive !== undefined ? course.isActive : true;
+                            const gradeId = course.gradeId || course.grade;
                             
                             // Map gradeId to text for display
                             const getGradeName = (gid) => {

@@ -22,6 +22,7 @@ export default function ExamsPage() {
             try {
                 // Fetch exams for the specific course/grade
                 const data = await studentService.getCourseExams(gradeId);
+                console.log("data",data)
                 setExams(data);
             } catch (error) {
                 console.error('Failed to fetch exams', error);
@@ -94,13 +95,13 @@ export default function ExamsPage() {
                                             </div>
                                         </div>
 
-                                        <Link to={canStart ? `/student/exam/${exam.id}` : '#'} className="block">
+                                        <Link to={isFree ? `/student/exam/${exam.id}` : '#'} className="block">
                                             <Button 
-                                                className="w-full gap-2" 
-                                                variant={canStart ? (isFree ? 'success' : 'primary') : 'secondary'}
-                                                disabled={!canStart}
+                                                className="w-full gap-2 cursor-pointer" 
+                                                variant={isFree ? 'success' : 'primary'}
+                                                disabled={!isFree}
                                             >
-                                                {canStart ? (
+                                                {isFree ? (
                                                     <>
                                                         <PlayCircle size={18} />
                                                         ابدأ الامتحان

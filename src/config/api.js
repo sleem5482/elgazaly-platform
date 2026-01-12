@@ -61,7 +61,8 @@ export const API_ENDPOINTS = {
     STUDENT: {
         // Updated based on user request
         COURSES: {
-             MY_COURSES: `${API_BASE_URL}/student/courses/GetAllCourseForStudent`,
+             MY_COURSES: `${API_BASE_URL}/student/courses/my`,
+             ALL_COURSES: `${API_BASE_URL}/student/courses/GetAllCourseForStudent`,
              ACCESS: (id) => `${API_BASE_URL}/student/courses/${id}/access`
         },
         PAYMENTS: {
@@ -69,7 +70,7 @@ export const API_ENDPOINTS = {
             SUBSCRIBE: `${API_BASE_URL}/student/payments/subscribe`
         },
         EXAMS: {
-            AVAILABLE: `${API_BASE_URL}/student/exams/available`,
+            FREE: `${API_BASE_URL}/student/exams/free`,
             BY_COURSE: (courseId) => `${API_BASE_URL}/student/exams/courses/${courseId}/exams`,
             QUESTIONS: (id) => `${API_BASE_URL}/student/exams/${id}/questions`,
             START: (id) => `${API_BASE_URL}/student/exams/start/${id}`,

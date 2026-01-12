@@ -82,16 +82,18 @@ export default function WeekPage() {
                          <div className="text-center py-10">جاري التحميل...</div>
                     ) : weekLessons.length > 0 ? (
                         weekLessons
-                            .filter(l => l.visibility === 1)
                             .sort((a,b) => a.orderNumber - b.orderNumber)
                             .map((lesson, idx) => {
                                 // Determine access
-                                // videoType: 1 = Free, 2 = Paid
+                                // videoType: 1 = Free, 2 = Paid, 3 = Revision, 4 = Homework
                                 const isFree = lesson.videoType === 1;
                                 // We need to check if user is subscribed to this week/month
                                 // Assuming checkSubscription is available and works with weekId
                                 const isSubscribed = user && week ? checkSubscription(user.id, weekId, 'week') : false;
                                 const isLocked = !isFree && !isSubscribed;
+                                
+                                // Visibility Check
+                                const isVisible = lesson.visibility === 1;
 
                                 // Inject weekId for context in LessonPage
                                 const lessonWithContext = { ...lesson, weekId: weekId };
@@ -116,6 +118,12 @@ export default function WeekPage() {
                                                         <h3 className="text-lg font-bold text-secondary group-hover:text-primary transition-colors">{lesson.title}</h3>
                                                         {isFree && <Badge variant="success">مجاني</Badge>}
                                                         {isLocked && <Badge variant="secondary">مدفوع</Badge>}
+                                                        {/* Visibility Badge */}
+                                                        {isVisible ? (
+                                                            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">ظاهر</Badge>
+                                                        ) : (
+                                                            <Badge className="bg-gray-200 text-gray-600 hover:bg-gray-300">مخفي</Badge>
+                                                        )}
                                                     </div>
                                                     <div className="flex items-center gap-4 text-sm text-gray-500">
                                                         <div className="flex items-center gap-1">

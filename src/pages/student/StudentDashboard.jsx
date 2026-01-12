@@ -135,12 +135,12 @@ export default function StudentDashboard() {
                         {filteredCourses.length > 0 ? filteredCourses.map(course => {
                             // Normalize data to handle potential PascalCase/camelCase mismatches
                             // Normalize data to handle potential PascalCase/camelCase mismatches
-                            const cName = course.courseName;
-                            const cId = course.courseId;
+                            const cName = course.courseName || course.title || course.name;
+                            const cId = course.courseId || course.id;
                             const isEnrolled = course.isEnrolled;
                             const isSubscriptionActive = course.isSubscriptionActive;
-                            const isActive = course.isCourseActive;
-                            const gradeId = course.gradeId;
+                            const isActive = course.isCourseActive !== undefined ? course.isCourseActive : course.isActive !== undefined ? course.isActive : true;
+                            const gradeId = course.gradeId || course.grade;
                             
                             // Map gradeId to text for display
                             const getGradeName = (gid) => {
@@ -238,40 +238,46 @@ console.log(exams)
                 الامتحانات المتاحة
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {exams.map(exam => (
-                    <Card key={exam.id} className="border-none shadow-sm bg-white hover:shadow-md transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className={`p-3 rounded-xl ${exam.examType=="Free" ? 'bg-green-100 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
-                                    <GraduationCap size={24} />
+                {exams.map(exam => {
+                    // Default to free if type is missing (API return for free exams)
+                    const isFree = exam.examType === 'Free' || !exam.examType;
+                    
+                    return (
+                        <Card key={exam.id} className="border-none shadow-sm bg-white hover:shadow-md transition-all">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className={`p-3 rounded-xl ${isFree ? 'bg-green-100 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
+                                        <GraduationCap size={24} />
+                                    </div>
+                                    {isFree ? 
+                                        <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
+                                        <Badge className="bg-blue-100 text-blue-700">منصة</Badge>
+                                    }                            
                                 </div>
- {exam.examType=="Free" ? 
-                                            <Badge className="bg-green-100 text-green-700">مجاني</Badge> : 
-                                            <Badge className="bg-blue-100 text-blue-700">منصة</Badge>
-                                         }                            </div>
-                                         <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
-                            <h5 className=" font-bold text-dark mb-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h5>
-                            
-                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                                <div className="flex items-center gap-1">
-                                    <Clock size={16} />
-                                    <span>{exam.durationMinutes } دقيقة</span>
+                                <h3 className="text-xl font-bold text-dark mb-2">{exam.title}</h3>
+                                <h5 className=" font-bold text-dark mb-2">وقت الاختبار: {new Date(exam.examDate).toLocaleDateString('ar-EG',{hour: '2-digit', minute: '2-digit'})}</h5>
+                                
+                                <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                                    <div className="flex items-center gap-1">
+                                        <Clock size={16} />
+                                        <span>{exam.durationMinutes } دقيقة</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <BookOpen size={16} />
+                                        <span>{exam.totalMarks || '?'} {exam.totalMarks > 1 ? 'درجات' : 'درجة'}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <BookOpen size={16} />
-                                    <span>{exam.totalMarks || '?'} {exam.totalMarks > 1 ? 'درجات' : 'درجة'}</span>
-                                </div>
-                            </div>
 
-                            <Link to={`/student/exam/${exam.id}`} className="block">
-                                <Button className="w-full gap-2" variant={exam.isFree ? 'success' : 'secondary'}>
-                                    <PlayCircle size={18} />
-                                    ابدأ الامتحان
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                ))}
+                                <Link to={`/student/exam/${exam.id}`} className="block">
+                                    <Button className="w-full gap-2" variant={isFree ? 'success' : 'secondary'}>
+                                        <PlayCircle size={18} />
+                                        ابدأ الامتحان
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
             </div>
         </div>
     );

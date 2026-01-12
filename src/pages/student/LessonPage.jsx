@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/layout/Sidebar';
 import Button from '../../components/ui/Button';
+import { MEDIA_BASE_URL } from '../../config/api';
 import {
   PlayCircle,
   FileText,
@@ -26,8 +27,39 @@ export default function LessonPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+    useEffect(() => {
+    const fetchVideoAccess = async () => {
+      try {
+        setLoading(true);
+        const data = await studentService.accessVideo(lessonId);
+        setVideoData(data);
+        console.log("_____________",data)
+      } catch {
+        setError('لا يمكنك الوصول إلى هذا المحتوى');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideoAccess();
+  }, [lessonId]);
+
+
   const stateLesson = location.state?.lessonData;
 
+  const getVideoSrc = (data) => {
+    if (!data) return '';
+    // If it's a file upload (sourceType 2) and has videoFilePath
+    if (data.sourceType === 2 && data.videoSource) {
+         return `${MEDIA_BASE_URL}${data.videoSource}`;
+    }
+    return data.videoSource || '';
+  };
+
+  const videoSrc = getVideoSrc(videoData);
+console.log("videoSrc",videoSrc)
+console.log("videoData",videoData)
   const getEmbedUrl = (url) => {
     if (!url) return '';
     let videoId = '';
@@ -47,22 +79,6 @@ export default function LessonPage() {
     return url && (url.includes('youtu.be/') || url.includes('youtube.com/'));
   };
 
-  useEffect(() => {
-    const fetchVideoAccess = async () => {
-      try {
-        setLoading(true);
-        const data = await studentService.accessVideo(lessonId);
-        setVideoData(data);
-        console.log("_____________",data)
-      } catch {
-        setError('لا يمكنك الوصول إلى هذا المحتوى');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVideoAccess();
-  }, [lessonId]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -120,7 +136,7 @@ export default function LessonPage() {
                   </div>
                 )}
 
-                {videoData?.videoUrl && (
+                {videoSrc && (
                   <>
                     {/* WATERMARK */}
                     <div className="absolute inset-0 pointer-events-none opacity-20 select-none z-10 hidden md:block">
@@ -133,10 +149,10 @@ export default function LessonPage() {
                       </div>
                     </div>
 
-                    {isYoutubeUrl(videoData.videoUrl) ? (
+                    {isYoutubeUrl(videoSrc) ? (
                       <>
                         <iframe
-                          src={`${getEmbedUrl(videoData.videoUrl)}&mute=0`}
+                          src={`${getEmbedUrl(videoSrc)}&mute=0`}
                           title="Video Player"
                           className="w-full h-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -151,7 +167,7 @@ export default function LessonPage() {
                       </>
                     ) : (
                       <video
-                        src={videoData.videoUrl}
+                        src={videoSrc}
                         controls
                         controlsList="nodownload"
                         className="w-full h-full"

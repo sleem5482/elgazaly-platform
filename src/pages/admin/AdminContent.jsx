@@ -41,6 +41,8 @@ export default function AdminContent() {
     // Video specific
     const [newItemDuration, setNewItemDuration] = useState('');
     const [newItemVideoType, setNewItemVideoType] = useState(1); // Default type
+    const [newItemVideoSource, setNewItemVideoSource] = useState(1); // 1: ExternalUrl, 2: UploadedFile
+    const [newItemVideoFile, setNewItemVideoFile] = useState(null);
 
     // Editing
     const [editingItem, setEditingItem] = useState(null);
@@ -127,25 +129,36 @@ export default function AdminContent() {
                 toast.success('تم إضافة الأسبوع بنجاح');
                 fetchWeeks();
             } else if (view === 'videos') {
-                 if (!newItemVideoUrl) {
+                if (newItemVideoSource === 1 && !newItemVideoUrl) {
                     toast.warning('الرجاء إدخال رابط الفيديو');
                     setIsLoading(false);
                     return;
                 }
+                if (newItemVideoSource === 2 && !newItemVideoFile) {
+                    toast.warning('الرجاء اختيار ملف الفيديو');
+                    setIsLoading(false);
+                    return;
+                }
                 
-                const data = {
-                    title: newItemName,
-                    videoUrl: newItemVideoUrl,
-                    duration: newItemDuration ? parseFloat(newItemDuration) : 0, // Using number as requested
-                    orderNumber: newItemOrder,
-                    videoType: parseInt(newItemVideoType),
-                    visibility: parseInt(newItemVisibility)
-                };
+                const data = new FormData();
+                data.append('Title', newItemName);
+                data.append('Duration', newItemDuration ? parseFloat(newItemDuration) : 0);
+                data.append('OrderNumber', newItemOrder);
+                data.append('VideoType', parseInt(newItemVideoType));
+                data.append('Visibility', parseInt(newItemVisibility));
+
+                if (newItemVideoSource === 2) {
+                    data.append('VideoFile', newItemVideoFile);
+                    // Ensure VideoUrl is empty or null if needed? usually not needed if file is present
+                } else {
+                    data.append('VideoUrl', newItemVideoUrl);
+                }
                 
                 await adminService.createVideo(selectedWeek.id, data);
                 toast.success('تم إضافة الفيديو بنجاح');
                 fetchVideos();
                 setNewItemVideoUrl('');
+                setNewItemVideoFile(null);
             }
             
             // Reset common fields
@@ -176,7 +189,14 @@ export default function AdminContent() {
 
     const handleEdit = (item, type) => {
         setEditingItem({ ...item, type });
-        setEditFormData({ ...item }); // Clone
+        // Map backend fields to form fields
+        setEditFormData({ 
+            ...item,
+            // Ensure sourceType is set correctly (default to 1 'External URL' if 0 or null, or keep what it is if valid)
+            videoSource: (item.sourceType === 2) ? 2 : 1, 
+            videoType: item.videoType || 1,
+            visibility: item.visibility || 1
+        }); 
     };
 
     const handleSaveEdit = async () => {
@@ -206,16 +226,25 @@ export default function AdminContent() {
                 await adminService.updateWeek(selectedMonth.id, id, data);
                 fetchWeeks();
             } else if (type === 'video') {
-                 const data = {
-                    title: editFormData.title,
-                    videoUrl: editFormData.videoUrl, // Expecting this to be edited
-                    duration: editFormData.duration ? parseFloat(editFormData.duration) : 0,
-                    orderNumber: editFormData.orderNumber,
-                    videoType: parseInt(editFormData.videoType),
-                    visibility: parseInt(editFormData.visibility || 1)
-                };
+                 const data = new FormData();
+                 data.append('Title', editFormData.title);
+                 data.append('Duration', editFormData.duration ? parseFloat(editFormData.duration) : 0);
+                 data.append('OrderNumber', editFormData.orderNumber);
+                 data.append('VideoType', parseInt(editFormData.videoType));
+                 data.append('Visibility', parseInt(editFormData.visibility || 1));
 
-                await adminService.updateVideo(selectedWeek.id, id, data);
+                 // Check if switching to file or keeping file source
+                 if (editFormData.videoSource === 2) {
+                     // If we are switching from Link to File, or updating File
+                     if (editFormData.videoFile) {
+                        data.append('VideoFile', editFormData.videoFile);
+                     }
+                 } else {
+                    // Link source
+                    data.append('VideoUrl', editFormData.videoUrl);
+                 }
+
+                await adminService.updateVideo(selectedWeek.id, id, data); // Service handles FormData check
                 fetchVideos();
             } else if (type === 'freeVideo') {
                  setFreeVideos(freeVideos.map(v => v.id === id ? editFormData : v));
@@ -260,6 +289,7 @@ export default function AdminContent() {
             setIsLoading(false);
         }
     };
+    console.log(selectedVideo)
 
     const renderCourses = () => (
         <div className="space-y-4">
@@ -347,12 +377,15 @@ export default function AdminContent() {
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                     />
-                     <Input
-                        type="number"
-                        placeholder="الترتيب"
-                        value={newItemOrder}
-                        onChange={(e) => setNewItemOrder(parseInt(e.target.value) || 1)}
-                    />
+                     <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">الترتيب</label>
+                        <Input
+                            type="number"
+                            placeholder="الترتيب"
+                            value={newItemOrder}
+                            onChange={(e) => setNewItemOrder(parseInt(e.target.value) || 1)}
+                        />
+                     </div>
 
                     {type === 'month' && (
                         <>
@@ -388,14 +421,47 @@ export default function AdminContent() {
                     {type === 'video' && (
                         <div className="space-y-4">
                             <Input placeholder="المدة (مثال 10:00)" value={newItemDuration} onChange={(e) => setNewItemDuration(e.target.value)} />
-                            <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">رابط الفيديو</label>
-                                <Input 
-                                    placeholder="https://..." 
-                                    value={newItemVideoUrl} 
-                                    onChange={(e) => setNewItemVideoUrl(e.target.value)} 
-                                />
+                            
+                            {/* Source Selection */}
+                            <div className="flex gap-4 mb-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        checked={newItemVideoSource === 1} // ExternalUrl
+                                        onChange={() => setNewItemVideoSource(1)}
+                                    />
+                                    <span>رابط (YouTube/Vimeo)</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="radio" 
+                                        checked={newItemVideoSource === 2} // UploadedFile
+                                        onChange={() => setNewItemVideoSource(2)}
+                                    />
+                                    <span>ملف فيديو (Upload)</span>
+                                </label>
                             </div>
+
+                            {newItemVideoSource === 1 ? (
+                                <div>
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">رابط الفيديو</label>
+                                    <Input 
+                                        placeholder="https://..." 
+                                        value={newItemVideoUrl} 
+                                        onChange={(e) => setNewItemVideoUrl(e.target.value)} 
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">ملف الفيديو</label>
+                                    <Input 
+                                        type="file"
+                                        accept="video/*"
+                                        onChange={(e) => setNewItemVideoFile(e.target.files[0])}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">يجب أن يكون الملف بصيغة MP4 أو صيغ مدعومة.</p>
+                                </div>
+                            )}
 
                              <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
@@ -404,6 +470,7 @@ export default function AdminContent() {
                                         <option value={1}>شرح</option>
                                         <option value={2}>حل</option>
                                         <option value={3}>مراجعة</option>
+                                        <option value={4}>واجب</option>
                                     </select>
                                 </div>
                                 <div className="flex-1">
@@ -436,12 +503,15 @@ export default function AdminContent() {
                                         onChange={(e) => setEditFormData({ ...editFormData, [type === 'month' ? 'monthName' : 'title']: e.target.value })}
                                         placeholder="العنوان"
                                     />
-                                    <Input
-                                        type="number"
-                                        value={editFormData.orderNumber || editFormData.order || ''}
-                                        onChange={(e) => setEditFormData({ ...editFormData, orderNumber: e.target.value })}
-                                        placeholder="الترتيب"
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">الترتيب</label>
+                                        <Input
+                                            type="number"
+                                            value={editFormData.orderNumber || editFormData.order || ''}
+                                            onChange={(e) => setEditFormData({ ...editFormData, orderNumber: e.target.value })}
+                                            placeholder="الترتيب"
+                                        />
+                                    </div>
                                     {type === 'month' && (
                                         <>
                                             <div className="flex flex-col md:flex-row gap-4">
@@ -489,14 +559,48 @@ export default function AdminContent() {
                                                 value={editFormData.duration || ''} 
                                                 onChange={(e) => setEditFormData({ ...editFormData, duration: e.target.value })} 
                                              />
-                                             <div>
-                                                <label className="block text-sm font-medium mb-1 text-gray-500">رابط الفيديو</label>
-                                                <Input 
-                                                    placeholder="https://..." 
-                                                    value={editFormData.videoUrl || ''} 
-                                                    onChange={(e) => setEditFormData({ ...editFormData, videoUrl: e.target.value })} 
-                                                />
+                                             {/* Edit Source Selection */}
+                                            <div className="flex gap-4 mb-2">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        checked={editFormData.videoSource !== 2} // Default to link (1) if 0 or 1
+                                                        onChange={() => setEditFormData({ ...editFormData, videoSource: 1 })}
+                                                    />
+                                                    <span>رابط (External)</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        checked={editFormData.videoSource === 2} 
+                                                        onChange={() => setEditFormData({ ...editFormData, videoSource: 2 })}
+                                                    />
+                                                    <span>ملف (Upload)</span>
+                                                </label>
                                             </div>
+
+                                            {(!editFormData.videoSource || editFormData.videoSource === 1) ? (
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-gray-500">رابط الفيديو</label>
+                                                    <Input 
+                                                        placeholder="https://..." 
+                                                        value={editFormData.videoUrl || ''} 
+                                                        onChange={(e) => setEditFormData({ ...editFormData, videoUrl: e.target.value })} 
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <label className="block text-sm font-medium mb-1 text-gray-500">ملف الفيديو</label>
+                                                    <Input 
+                                                        type="file"
+                                                        accept="video/*"
+                                                        onChange={(e) => setEditFormData({ ...editFormData, videoFile: e.target.files[0] })}
+                                                    />
+                                                    {editFormData.videoUrl && editFormData.videoUrl.includes('/videos/') && (
+                                                        <p className="text-xs text-green-600 mt-1">يوجد ملف حالي</p>
+                                                    )}
+                                                </div>
+                                            )}
 
                                             <div className="flex flex-col md:flex-row gap-4">
                                                 <div className="flex-1">
@@ -509,6 +613,7 @@ export default function AdminContent() {
                                                         <option value={1}>شرح</option>
                                                         <option value={2}>حل</option>
                                                         <option value={3}>مراجعة</option>
+                                                        <option value={4}>واجب</option>
                                                     </select>
                                                 </div>
                                                  <div className="flex-1">
@@ -557,7 +662,10 @@ export default function AdminContent() {
                                                             {item.visibility === 1 ? 'ظاهر' : 'مخفي'}
                                                         </span>
                                                         <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                                                            {item.videoType === 1 ? 'شرح' : item.videoType === 2 ? 'حل' : 'مراجعة'}
+                                                            {item.videoType === 1 ? 'شرح' : item.videoType === 2 ? 'حل' : item.videoType === 3 ? 'مراجعة' : 'واجب'}
+                                                        </span>
+                                                        <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                                                            {item.sourceType === 2 ? 'ملف' : 'رابط'}
                                                         </span>
                                                     </>
                                                 )}
@@ -629,7 +737,12 @@ export default function AdminContent() {
             <VideoModal 
                 isOpen={!!selectedVideo}
                 onClose={() => setSelectedVideo(null)}
-                videoUrl={selectedVideo?.url || selectedVideo?.videoUrl || selectedVideo?.filePath}
+                videoUrl={
+                    
+                    selectedVideo?.sourceType === 2 
+                    ? `${MEDIA_BASE_URL}${selectedVideo?.videoUrl}` 
+                    : selectedVideo?.videoUrl || selectedVideo?.url
+                }
                 title={selectedVideo?.title || selectedVideo?.name}
             />
         </div>
