@@ -116,7 +116,10 @@ export default function CoursePage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm opacity-80 mb-1">شهر {idx + 1}</p>
-                                                    <h3 className="text-2xl font-bold text-white">{month.monthName}</h3>
+                                                    <h3 className="text-2xl font-bold text-white mb-1">{month.monthName}</h3>
+                                                     <p className="text-sm font-bold bg-white/20 inline-block px-2 py-1 rounded backdrop-blur-sm text-yellow-300">
+                                                        {month.price ? `${month.price} ج.م` : 'مجاني'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

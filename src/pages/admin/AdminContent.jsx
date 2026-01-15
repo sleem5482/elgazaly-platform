@@ -30,6 +30,7 @@ export default function AdminContent() {
 
     // Form state
     const [newItemName, setNewItemName] = useState('');
+    const [newItemPrice, setNewItemPrice] = useState(''); // Added Price State
     const [newItemOrder, setNewItemOrder] = useState(1);
     const [newItemStartDate, setNewItemStartDate] = useState('');
     const [newItemEndDate, setNewItemEndDate] = useState('');
@@ -109,6 +110,7 @@ export default function AdminContent() {
             if (view === 'months') {
                 const formData = new FormData();
                 formData.append('MonthName', newItemName);
+                formData.append('Price', newItemPrice || 0);
                 formData.append('OrderNumber', newItemOrder);
                 formData.append('StartDate', newItemStartDate ? new Date(newItemStartDate).toISOString() : new Date().toISOString());
                 formData.append('EndDate', newItemEndDate ? new Date(newItemEndDate).toISOString() : new Date().toISOString());
@@ -163,6 +165,7 @@ export default function AdminContent() {
             
             // Reset common fields
             setNewItemName('');
+            setNewItemPrice('');
             setNewItemOrder(prev => prev + 1);
             setNewItemStartDate('');
             setNewItemEndDate('');
@@ -208,6 +211,7 @@ export default function AdminContent() {
                 // Mapping back to API expectations
                 const formData = new FormData();
                 formData.append('MonthName', editFormData.monthName || editFormData.title || editFormData.name);
+                formData.append('Price', editFormData.price || 0);
                 formData.append('OrderNumber', editFormData.orderNumber || editFormData.order);
                 formData.append('StartDate', editFormData.startDate ? new Date(editFormData.startDate).toISOString() : new Date().toISOString());
                 formData.append('EndDate', editFormData.endDate ? new Date(editFormData.endDate).toISOString() : new Date().toISOString());
@@ -377,6 +381,19 @@ export default function AdminContent() {
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                     />
+                    
+                    {type === 'month' && (
+                         <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">السعر</label>
+                            <Input
+                                type="number"
+                                placeholder="السعر"
+                                value={newItemPrice}
+                                onChange={(e) => setNewItemPrice(e.target.value)}
+                            />
+                         </div>
+                    )}
+
                      <div>
                         <label className="block text-sm font-medium mb-1 text-gray-700">الترتيب</label>
                         <Input
@@ -503,6 +520,17 @@ export default function AdminContent() {
                                         onChange={(e) => setEditFormData({ ...editFormData, [type === 'month' ? 'monthName' : 'title']: e.target.value })}
                                         placeholder="العنوان"
                                     />
+                                    {type === 'month' && (
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1 text-gray-700">السعر</label>
+                                            <Input
+                                                type="number"
+                                                value={editFormData.price || ''}
+                                                onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value })}
+                                                placeholder="السعر"
+                                            />
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="block text-sm font-medium mb-1 text-gray-700">الترتيب</label>
                                         <Input
@@ -654,6 +682,7 @@ export default function AdminContent() {
                                         <div className="min-w-0">
                                             <h3 className="font-bold text-lg text-secondary group-hover:text-primary transition-colors break-words">{item.monthName || item.title || item.name}</h3>
                                             <div className="flex flex-wrap gap-2 mt-1">
+                                                {item.price !== undefined && item.price !== null && <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">{item.price > 0 ? `${item.price} ج.م` : 'مجاني'}</span>}
                                                 {item.orderNumber && <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">ترتيب: {item.orderNumber}</span>}
                                                 {type === 'video' && (
                                                     <>

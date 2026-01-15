@@ -36,7 +36,7 @@ export default function PaymentPage() {
         const fetchCourses = async () => {
             try {
                 // Ensure we get all courses to populate the dropdown
-                const data = await studentService.getMyCourses();
+                const data = await studentService.getAllCourses();
                 setCourses(data);
             } catch (error) {
                 console.error('Failed to fetch courses', error);
@@ -72,6 +72,16 @@ export default function PaymentPage() {
         };
         fetchMonths();
     }, [selectedCourseId]);
+
+    // Auto-fill amount when month is selected
+    useEffect(() => {
+        const month = months.find(m => m.id == selectedMonthId);
+        if (month && month.price) {
+            setAmount(month.price);
+        } else {
+            setAmount('');
+        }
+    }, [selectedMonthId, months]);
 
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
